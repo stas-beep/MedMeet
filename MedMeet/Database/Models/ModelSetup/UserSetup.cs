@@ -22,8 +22,8 @@ namespace Database.Models.ModelSetup
             
             builder.HasOne(u => u.Specialty).WithMany(s => s.Doctors).HasForeignKey(u => u.SpecialtyId).OnDelete(DeleteBehavior.SetNull);
             builder.HasOne(u => u.Cabinet).WithMany(c => c.Doctors).HasForeignKey(u => u.CabinetId).OnDelete(DeleteBehavior.SetNull);
-            builder.HasMany(u => u.RecordAsPatient).WithOne(r => r.Patient).HasForeignKey(r => r.PatientId).OnDelete(DeleteBehavior.Restrict);
-            builder.HasMany(u => u.RecordAsDoctor).WithOne(r => r.Doctor).HasForeignKey(r => r.DoctorId).OnDelete(DeleteBehavior.Restrict);
+            builder.HasMany(u => u.RecordAsPatient).WithOne(r => r.Patient).HasForeignKey(r => r.PatientId).OnDelete(DeleteBehavior.Cascade);
+            builder.HasMany(u => u.RecordAsDoctor).WithOne(r => r.Doctor).HasForeignKey(r => r.DoctorId).OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

@@ -22,11 +22,11 @@ class Program
 
         Console.WriteLine("Starting seeding database ....");
 
-        var cabinets = SeedCabinets(context);
-        var specialties = SeedSpecialties(context);
-        var users = SeedUsers(context, cabinets, specialties);
-        var records = SeedRecords(context, users);
-        var prescriptions = SeedPrescriptions(context, records);
+        List<Cabinet> cabinets = SeedCabinets(context);
+        List<Specialty> specialties = SeedSpecialties(context);
+        List<User> users = SeedUsers(context, cabinets, specialties);
+        List<Record> records = SeedRecords(context, users);
+        List<Prescription> prescriptions = SeedPrescriptions(context, records);
 
         Console.WriteLine("Seeding finished.");
     }
@@ -94,7 +94,7 @@ class Program
 
         Console.WriteLine("Seeding Users...");
 
-        List<String> roles = new List<string>() { "Doctor", "Patient" };
+        List<String> roles = new List<string>() { "Doctor", "Patient", "Admin"};
         var faker = new Faker();
 
         List<User> list = new List<User>();

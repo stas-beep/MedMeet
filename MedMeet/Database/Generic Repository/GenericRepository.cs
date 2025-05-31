@@ -19,28 +19,36 @@ namespace Database.Generic_Repository
             databaseSet = context.Set<T>();
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync() { 
-            return await databaseSet.ToListAsync(); 
+        public async Task<IEnumerable<T>> GetAllAsync()
+        {
+            return await databaseSet.ToListAsync();
         }
 
-        public async Task<T> GetByIdAsync(int id) { 
-            return await databaseSet.FindAsync(id); 
+        public async Task<T> GetByIdAsync(int id)
+        {
+            return await databaseSet.FindAsync(id);
         }
 
-        public async Task AddAsync(T entity) { 
-            await databaseSet.AddAsync(entity); 
+        public async Task AddAsync(T entity)
+        {
+            await databaseSet.AddAsync(entity);
         }
 
-        public void Update(T entity) { 
-            databaseSet.Update(entity); 
+        public Task UpdateAsync(T entity)
+        {
+            databaseSet.Update(entity);
+            return Task.CompletedTask;
         }
 
-        public void Delete(T entity) { 
-            databaseSet.Remove(entity); 
+        public Task DeleteAsync(T entity)
+        {
+            databaseSet.Remove(entity);
+            return Task.CompletedTask;
         }
 
-        public async Task SaveAsync() { 
-            await database.SaveChangesAsync(); 
+        public async Task SaveAsync()
+        {
+            await database.SaveChangesAsync();
         }
     }
 }
