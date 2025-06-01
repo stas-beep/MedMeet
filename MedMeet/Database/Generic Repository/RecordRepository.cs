@@ -11,7 +11,7 @@ namespace Database.Generic_Repository
 {
     public class RecordRepository : GenericRepository<Record>, IRecordRepository
     {
-        public RecordRepository(DbContext context) : base(context) {
+        public RecordRepository(MedMeetDbContext context) : base(context) {
         
         }
 

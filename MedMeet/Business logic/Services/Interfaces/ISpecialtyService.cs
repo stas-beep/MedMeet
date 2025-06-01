@@ -13,7 +13,7 @@ namespace Business_logic.Services.Interfaces
         Task<SpecialtyReadDto> GetByIdAsync(int id);
         Task<IEnumerable<SpecialtyReadDto>> SearchByNameAsync(string name);
         Task<SpecialtyReadDto> CreateAsync(SpecialtyCreateDto dto);
-        Task UpdateAsync(int id, SpecialtyUpdateDto dto);
+        Task<SpecialtyReadDto> UpdateAsync(int id, SpecialtyUpdateDto dto);
         Task DeleteAsync(int id);
     }
 }

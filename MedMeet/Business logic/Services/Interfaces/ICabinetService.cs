@@ -11,11 +11,10 @@ namespace Business_logic.Services.Interfaces
     public interface ICabinetService
     {
         Task<CabinetReadDto> GetByIdAsync(int id);
-        Task<CabinetReadDto> GetByNameAsync(string name);
-        Task<IEnumerable<CabinetReadDto>> GetAllWithDoctorsAsync();
+        Task<IEnumerable<CabinetReadDto>> GetByNameAsync(string name);
         Task<IEnumerable<CabinetReadDto>> GetAllAsync();
-        Task CreateAsync(CabinetCreateDto dto);
-        Task UpdateAsync(int id, CabinetUpdateDto dto);
+        Task<CabinetReadDto> CreateAsync(CabinetCreateDto dto);
+        Task<CabinetReadDto> UpdateAsync(int id, CabinetUpdateDto dto);
         Task DeleteAsync(int id);
     }
 }

@@ -11,7 +11,7 @@ namespace Database.Generic_Repository
 {
     public class PrescriptionRepository : GenericRepository<Prescription>, IPrescriptionRepository
     {
-        public PrescriptionRepository(DbContext context) : base(context) { 
+        public PrescriptionRepository(MedMeetDbContext context) : base(context) { 
         
         }
 

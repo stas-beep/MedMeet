@@ -9,7 +9,6 @@ namespace Database.Generic_Repository.Interfaces
 {
     public interface ICabinetRepository : IGenericRepository<Cabinet>
     {
-        Task<Cabinet> GetByNameAsync(string name);
-        Task<IEnumerable<Cabinet>> GetAllWithDoctorsAsync();
+        Task<IEnumerable<Cabinet>> GetByNameAsync(string name);
     }
 }

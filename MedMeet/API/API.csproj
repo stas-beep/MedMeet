@@ -17,10 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Business logic\Business logic.csproj" />
     <ProjectReference Include="..\Database\Database.csproj" />
   </ItemGroup>

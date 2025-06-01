@@ -11,7 +11,7 @@ namespace Database.Generic_Repository
 {
     public class UserRepository : GenericRepository<User>, IUserRepository
     {
-        public UserRepository(DbContext context) : base(context) { }
+        public UserRepository(MedMeetDbContext context) : base(context) { }
 
         public async Task<IEnumerable<User>> GetDoctorsAsync()
         {

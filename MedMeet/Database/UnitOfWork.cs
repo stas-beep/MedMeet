@@ -11,7 +11,7 @@ namespace Database
 {
     public class UnitOfWork : IUnitOfWork
     {
-        private readonly DbContext databaseContext;
+        private readonly MedMeetDbContext databaseContext;
 
         public IUserRepository Users { get; private set; }
         public ICabinetRepository Cabinets { get; private set; }
@@ -19,7 +19,7 @@ namespace Database
         public IPrescriptionRepository Prescriptions { get; private set; }
         public ISpecialtyRepository Specialties { get; private set; }
 
-        public UnitOfWork(DbContext context)
+        public UnitOfWork(MedMeetDbContext context)
         {
             databaseContext = context;
             Users = new UserRepository(databaseContext);

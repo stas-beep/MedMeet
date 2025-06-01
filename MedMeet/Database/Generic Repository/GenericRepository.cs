@@ -10,10 +10,10 @@ namespace Database.Generic_Repository
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
-        protected readonly DbContext database;
+        protected readonly MedMeetDbContext database;
         protected readonly DbSet<T> databaseSet;
 
-        public GenericRepository(DbContext context)
+        public GenericRepository(MedMeetDbContext context)
         {
             database = context;
             databaseSet = context.Set<T>();

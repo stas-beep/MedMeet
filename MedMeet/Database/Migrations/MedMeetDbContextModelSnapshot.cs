@@ -192,12 +192,12 @@ namespace Database.Migrations
                     b.HasOne("Database.Models.Cabinet", "Cabinet")
                         .WithMany("Doctors")
                         .HasForeignKey("CabinetId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("Database.Models.Specialty", "Specialty")
                         .WithMany("Doctors")
                         .HasForeignKey("SpecialtyId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Cabinet");
 

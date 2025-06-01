@@ -55,18 +55,21 @@ namespace Business_logic.Services.Implementation
             return new SpecialtyReadDto { Id = specialty.Id, Name = specialty.Name };
         }
 
-        public async Task UpdateAsync(int id, SpecialtyUpdateDto dto)
+        public async Task<SpecialtyReadDto> UpdateAsync(int id, SpecialtyUpdateDto dto)
         {
             var specialty = await repository.GetByIdAsync(id);
-            
+
             if (specialty == null)
             {
                 throw new KeyNotFoundException($"Specialty with id {id} not found.");
             }
+
             specialty.Name = dto.Name;
-            
+
             await repository.UpdateAsync(specialty);
             await repository.SaveAsync();
+
+            return new SpecialtyReadDto { Id = specialty.Id, Name = specialty.Name };
         }
 
         public async Task DeleteAsync(int id)

@@ -11,7 +11,7 @@ namespace Database.Generic_Repository
 {
     public class SpecialtyRepository : GenericRepository<Specialty>, ISpecialtyRepository
     {
-        public SpecialtyRepository(DbContext context) : base(context) { 
+        public SpecialtyRepository(MedMeetDbContext context) : base(context) { 
         
         }
 

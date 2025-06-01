@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Database.Migrations
 {
     [DbContext(typeof(MedMeetDbContext))]
-    [Migration("20250530143653_InitialCreate")]
+    [Migration("20250601123018_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -176,13 +176,13 @@ namespace Database.Migrations
                     b.HasOne("Database.Models.User", "Doctor")
                         .WithMany("RecordAsDoctor")
                         .HasForeignKey("DoctorId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Database.Models.User", "Patient")
                         .WithMany("RecordAsPatient")
                         .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Doctor");
@@ -195,12 +195,12 @@ namespace Database.Migrations
                     b.HasOne("Database.Models.Cabinet", "Cabinet")
                         .WithMany("Doctors")
                         .HasForeignKey("CabinetId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("Database.Models.Specialty", "Specialty")
                         .WithMany("Doctors")
                         .HasForeignKey("SpecialtyId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Cabinet");
 

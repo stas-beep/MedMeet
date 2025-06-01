@@ -16,7 +16,7 @@ namespace Business_logic.Services.Interfaces
         Task<UserReadDto> GetByEmailAsync(string email);
         Task<IEnumerable<UserReadDto>> SearchByNameAsync(string name);
         Task<UserReadDto> CreateAsync(UserCreateDto dto);
-        Task UpdateAsync(int id, UserUpdateDto dto);
+        Task<UserReadDto> UpdateAsync(int id, UserUpdateDto dto);
         Task DeleteAsync(int id);
     }
 }

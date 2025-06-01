@@ -11,14 +11,12 @@ class Program
 {
     static void Main(string[] args)
     {
-        var connectionString = "server=localhost;port=3306;database=medmeetdb;user=root;password=root";
+        string connectionString = "server=localhost;port=3306;database=medmeetdb;user=root;password=root";
 
         var options = new DbContextOptionsBuilder<MedMeetDbContext>()
             .UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
             .Options;
-
         using var context = new MedMeetDbContext(options);
-
 
         Console.WriteLine("Starting seeding database ....");
 
@@ -94,10 +92,9 @@ class Program
 
         Console.WriteLine("Seeding Users...");
 
-        List<String> roles = new List<string>() { "Doctor", "Patient", "Admin"};
         var faker = new Faker();
+        List<User> users = new List<User>();
 
-        List<User> list = new List<User>();
         for (int i = 1; i <= 40; i++)
         {
             User user = new User
@@ -107,27 +104,29 @@ class Program
                 Password = faker.Internet.Password(),
             };
 
-            if (i % 2 == 0)
+            if (i % 2 == 0) 
             {
                 user.Role = "Doctor";
-                user.CabinetId = cabinets[faker.Random.Int(0, cabinets.Count - 1)].Id;
-                user.SpecialtyId = specialties[faker.Random.Int(0, specialties.Count - 1)].Id;
-            }
+                var randomCabinet = cabinets[faker.Random.Int(0, cabinets.Count - 1)];
+                var randomSpecialty = specialties[faker.Random.Int(0, specialties.Count - 1)];
 
+                user.CabinetId = randomCabinet.Id;
+                user.SpecialtyId = randomSpecialty.Id;
+            }
             else
             {
                 user.Role = "Patient";
                 user.CabinetId = null;
                 user.SpecialtyId = null;
             }
-            
-            list.Add(user);
+
+            users.Add(user);
         }
 
-        context.Users.AddRange(list);
+        context.Users.AddRange(users);
         context.SaveChanges();
 
-        return list;
+        return users;
     }
 
     static List<Record> SeedRecords(MedMeetDbContext context, List<User> users)

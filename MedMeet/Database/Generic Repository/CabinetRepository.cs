@@ -11,18 +11,13 @@ namespace Database.Generic_Repository
 {
     public class CabinetRepository : GenericRepository<Cabinet>, ICabinetRepository
     {
-        public CabinetRepository(DbContext context) : base(context) {
+        public CabinetRepository(MedMeetDbContext context) : base(context) {
         
         }
 
-        public async Task<Cabinet> GetByNameAsync(string name)
+        public async Task<IEnumerable<Cabinet>> GetByNameAsync(string name)
         {
-            return await databaseSet.FirstOrDefaultAsync(c => c.Name == name);
-        }
-
-        public async Task<IEnumerable<Cabinet>> GetAllWithDoctorsAsync()
-        {
-            return await databaseSet.Include(c => c.Doctors).ToListAsync();
+            return await databaseSet.Where(c => c.Name.ToLower().Contains(name.ToLower())).ToListAsync();
         }
     }
 }

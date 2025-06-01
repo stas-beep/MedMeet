@@ -16,7 +16,7 @@ namespace Business_logic.Services.Interfaces
         Task<IEnumerable<RecordReadDto>> GetByStatusAsync(string status);
         Task<IEnumerable<RecordReadDto>> GetUpcomingAsync(DateTime from, DateTime? to = null);
         Task<RecordReadDto> CreateAsync(RecordCreateDto dto);
-        Task UpdateAsync(int id, RecordUpdateDto dto);
+        Task<RecordReadDto> UpdateAsync(int id, RecordUpdateDto dto);
         Task DeleteAsync(int id);
     }
 }

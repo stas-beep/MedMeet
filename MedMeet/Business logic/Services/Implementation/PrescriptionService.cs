@@ -54,7 +54,7 @@ public class PrescriptionService : IPrescriptionService
         return new PrescriptionReadDto { Id = prescription.Id, RecordId = prescription.RecordId, Medication = prescription.Medication, Dosage = prescription.Dosage, Instructions = prescription.Instructions };
     }
 
-    public async Task UpdateAsync(int id, PrescriptionUpdateDto dto)
+    public async Task<PrescriptionReadDto> UpdateAsync(int id, PrescriptionUpdateDto dto)
     {
         var prescription = await repository.GetByIdAsync(id);
         if (prescription == null)
@@ -68,6 +68,15 @@ public class PrescriptionService : IPrescriptionService
 
         await repository.UpdateAsync(prescription);
         await repository.SaveAsync();
+
+        return new PrescriptionReadDto
+        {
+            Id = prescription.Id,
+            RecordId = prescription.RecordId,
+            Medication = prescription.Medication,
+            Dosage = prescription.Dosage,
+            Instructions = prescription.Instructions
+        };
     }
 
     public async Task DeleteAsync(int id)

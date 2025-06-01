@@ -23,7 +23,7 @@ namespace Business_logic.Services.Implementation
         {
             var users = await repository.GetAllAsync();
 
-            return users.Select(u => new UserReadDto { Id = u.Id, FullName = u.FullName, Email = u.Email, Role = u.Role });
+            return users.Select(u => new UserReadDto { Id = u.Id, FullName = u.FullName, Email = u.Email, Role = u.Role, SpecialtyId = u.SpecialtyId, CabinetId = u.CabinetId });
         }
 
         public async Task<UserReadDto> GetByIdAsync(int id)
@@ -35,21 +35,21 @@ namespace Business_logic.Services.Implementation
                 throw new KeyNotFoundException($"User with id {id} not found.");
             }
             
-            return new UserReadDto { Id = user.Id, FullName = user.FullName, Email = user.Email, Role = user.Role };
+            return new UserReadDto { Id = user.Id, FullName = user.FullName, Email = user.Email, Role = user.Role, SpecialtyId = user.SpecialtyId, CabinetId = user.CabinetId };
         }
 
         public async Task<IEnumerable<UserReadDto>> GetDoctorsAsync()
         {
             var doctors = await repository.GetDoctorsAsync();
             
-            return doctors.Select(u => new UserReadDto { Id = u.Id, FullName = u.FullName, Email = u.Email, Role = u.Role });
+            return doctors.Select(u => new UserReadDto {Id = u.Id, FullName = u.FullName, Email = u.Email, Role = u.Role, SpecialtyId = u.SpecialtyId, CabinetId = u.CabinetId });
         }
 
         public async Task<IEnumerable<UserReadDto>> GetPatientsAsync()
         {
             var patients = await repository.GetPatientsAsync();
             
-            return patients.Select(u => new UserReadDto { Id = u.Id, FullName = u.FullName, Email = u.Email, Role = u.Role });
+            return patients.Select(u => new UserReadDto {Id = u.Id, FullName = u.FullName, Email = u.Email, Role = u.Role });
         }
 
         public async Task<UserReadDto> GetByEmailAsync(string email)
@@ -60,19 +60,19 @@ namespace Business_logic.Services.Implementation
                 throw new KeyNotFoundException($"User with email {email} not found.");
             }
             
-            return new UserReadDto { Id = user.Id, FullName = user.FullName, Email = user.Email, Role = user.Role };
+            return new UserReadDto { Id = user.Id, FullName = user.FullName, Email = user.Email, Role = user.Role, CabinetId = user.CabinetId, SpecialtyId = user.SpecialtyId };
         }
 
         public async Task<IEnumerable<UserReadDto>> SearchByNameAsync(string name)
         {
             var users = await repository.SearchByNameAsync(name);
             
-            return users.Select(u => new UserReadDto { Id = u.Id, FullName = u.FullName, Email = u.Email, Role = u.Role });
+            return users.Select(u => new UserReadDto {Id = u.Id, FullName = u.FullName, Email = u.Email, Role = u.Role, SpecialtyId = u.SpecialtyId, CabinetId = u.CabinetId });
         }
 
         public async Task<UserReadDto> CreateAsync(UserCreateDto dto)
         {
-            User user = new User { FullName = dto.FullName, Email = dto.Email, Role = dto.Role, Password = dto.Password };
+            User user = new User { FullName = dto.FullName, Email = dto.Email, Role = dto.Role, Password = dto.Password, SpecialtyId = dto.SpecialtyId, CabinetId = dto.CabinetId };
             
             await repository.AddAsync(user);
             await repository.SaveAsync();
@@ -80,25 +80,38 @@ namespace Business_logic.Services.Implementation
             return new UserReadDto { Id = user.Id, FullName = user.FullName, Email = user.Email, Role = user.Role };
         }
 
-        public async Task UpdateAsync(int id, UserUpdateDto dto)
+        public async Task<UserReadDto> UpdateAsync(int id, UserUpdateDto dto)
         {
             var user = await repository.GetByIdAsync(id);
-            
+
             if (user == null)
             {
                 throw new KeyNotFoundException($"User with id {id} not found.");
             }
-            
+
             user.FullName = dto.FullName;
             user.Email = dto.Email;
             user.Role = dto.Role;
-            
+            user.SpecialtyId = dto.SpecialtyId;
+            user.CabinetId = dto.CabinetId;
+
             if (!string.IsNullOrEmpty(dto.Password))
             {
                 user.Password = dto.Password;
             }
+
             await repository.UpdateAsync(user);
             await repository.SaveAsync();
+
+            return new UserReadDto
+            {
+                Id = user.Id,
+                FullName = user.FullName,
+                Email = user.Email,
+                Role = user.Role,
+                CabinetId = user.CabinetId,
+                SpecialtyId = user.SpecialtyId
+            };
         }
 
         public async Task DeleteAsync(int id)

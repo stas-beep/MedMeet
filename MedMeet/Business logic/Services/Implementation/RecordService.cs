@@ -68,7 +68,7 @@ public class RecordService : IRecordService
         return new RecordReadDto { Id = saved.Id, PatientId = saved.PatientId, PatientName = saved.Patient?.FullName ?? "Unknown", DoctorId = saved.DoctorId, DoctorName = saved.Doctor?.FullName ?? "Unknown", AppointmentDate = saved.AppointmentDate, Status = saved.Status, Notes = saved.Notes };
     }
 
-    public async Task UpdateAsync(int id, RecordUpdateDto dto)
+    public async Task<RecordReadDto> UpdateAsync(int id, RecordUpdateDto dto)
     {
         var record = await repository.GetByIdAsync(id);
         if (record == null)
@@ -78,10 +78,23 @@ public class RecordService : IRecordService
 
         record.AppointmentDate = dto.AppointmentDate;
         record.Status = dto.Status;
-        record.Notes= dto.Notes;
+        record.Notes = dto.Notes;
 
         await repository.UpdateAsync(record);
         await repository.SaveAsync();
+
+        var updated = await repository.GetWithDetailsAsync(record.Id);
+        return new RecordReadDto
+        {
+            Id = updated.Id,
+            PatientId = updated.PatientId,
+            PatientName = updated.Patient?.FullName ?? "Unknown",
+            DoctorId = updated.DoctorId,
+            DoctorName = updated.Doctor?.FullName ?? "Unknown",
+            AppointmentDate = updated.AppointmentDate,
+            Status = updated.Status,
+            Notes = updated.Notes
+        };
     }
 
     public async Task DeleteAsync(int id)

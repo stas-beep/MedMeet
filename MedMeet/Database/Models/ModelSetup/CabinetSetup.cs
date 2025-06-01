@@ -17,7 +17,7 @@ namespace Database.Models.ModelSetup
 
             builder.Property(c => c.Name).IsRequired().HasMaxLength(50);
 
-            builder.HasMany(c => c.Doctors).WithOne(u => u.Cabinet).HasForeignKey(u => u.CabinetId).OnDelete(DeleteBehavior.SetNull);
+            builder.HasMany(c => c.Doctors).WithOne(u => u.Cabinet).HasForeignKey(u => u.CabinetId).OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

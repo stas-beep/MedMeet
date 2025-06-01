@@ -21,13 +21,7 @@ namespace Business_logic.Services.Implementation
 
         public async Task<IEnumerable<CabinetReadDto>> GetAllAsync()
         {
-            var cabinets = await repository.GetAllWithDoctorsAsync();
-            return cabinets.Select(cabinet => new CabinetReadDto { Id = cabinet.Id, Name = cabinet.Name });
-        }
-
-        public async Task<IEnumerable<CabinetReadDto>> GetAllWithDoctorsAsync()
-        {
-            var cabinets = await repository.GetAllWithDoctorsAsync();
+            var cabinets = await repository.GetAllAsync();
             return cabinets.Select(cabinet => new CabinetReadDto { Id = cabinet.Id, Name = cabinet.Name });
         }
 
@@ -42,33 +36,46 @@ namespace Business_logic.Services.Implementation
             return new CabinetReadDto { Id = cabinet.Id, Name = cabinet.Name };
         }
 
-        public async Task<CabinetReadDto> GetByNameAsync(string name)
+        public async Task<IEnumerable<CabinetReadDto>> GetByNameAsync(string name)
         {
-            var cabinet = await repository.GetByNameAsync(name);
-            if (cabinet == null)
-            {
-                return null;
-            }
+            var cabinets = await repository.GetByNameAsync(name);
 
-            return new CabinetReadDto{ Id = cabinet.Id, Name = cabinet.Name };
+            return cabinets.Select(cabinet => new CabinetReadDto
+            {
+                Id = cabinet.Id,
+                Name = cabinet.Name
+            });
         }
 
-        public async Task CreateAsync(CabinetCreateDto dto)
+        public async Task<CabinetReadDto> CreateAsync(CabinetCreateDto dto)
         {
             Cabinet cabinet = new Cabinet { Name = dto.Name };
             await repository.AddAsync(cabinet);
+            await repository.SaveAsync();
+
+            return new CabinetReadDto
+            {
+                Id = cabinet.Id,
+                Name = cabinet.Name
+            };
         }
 
-        public async Task UpdateAsync(int id, CabinetUpdateDto updateDtoObject)
+        public async Task<CabinetReadDto> UpdateAsync(int id, CabinetUpdateDto dto)
         {
             var cabinet = await repository.GetByIdAsync(id);
             if (cabinet == null)
             {
-                throw new KeyNotFoundException($"Cabinet with id {id} not found");
+                throw new Exception($"Cabinet with id {id} not found");
             }
 
-            cabinet.Name = updateDtoObject.Name;
+            cabinet.Name = dto.Name;
             await repository.UpdateAsync(cabinet);
+
+            return new CabinetReadDto
+            {
+                Id = cabinet.Id,
+                Name = cabinet.Name
+            };
         }
 
         public async Task DeleteAsync(int id)
@@ -80,6 +87,7 @@ namespace Business_logic.Services.Implementation
             }
 
             await repository.DeleteAsync(cabinet);
+            await repository.SaveAsync();
         }
     }
 }

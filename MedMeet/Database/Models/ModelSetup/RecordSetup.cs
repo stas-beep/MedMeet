@@ -17,7 +17,7 @@ namespace Database.Models.ModelSetup
             builder.Property(r => r.Status).HasMaxLength(50);
             builder.Property(r => r.Notes).HasMaxLength(500);
 
-            builder.HasOne(r => r.Patient).WithMany(u => u.RecordAsPatient).HasForeignKey(r => r.PatientId).OnDelete(DeleteBehavior.Restrict);
+            builder.HasOne(r => r.Patient).WithMany(u => u.RecordAsPatient).HasForeignKey(r => r.PatientId).OnDelete(DeleteBehavior.Cascade);
             builder.HasOne(r => r.Doctor).WithMany(u => u.RecordAsDoctor).HasForeignKey(r => r.DoctorId).OnDelete(DeleteBehavior.Cascade);
             builder.HasMany(r => r.Prescriptions).WithOne(p => p.Record).HasForeignKey(p => p.RecordId).OnDelete(DeleteBehavior.Cascade);
         }
