@@ -5,6 +5,9 @@ using Business_logic.Services.Interfaces;
 using System.ComponentModel.Design;
 using Database.Generic_Repository.Interfaces;
 using Database.Generic_Repository;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using Business_logic.Rules;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +21,9 @@ builder.Services.AddDbContext<MedMeetDbContext>(options =>
         builder.Configuration.GetConnectionString("DefaultConnection"),
         new MySqlServerVersion(new Version(8, 0, 41)), 
         b => b.MigrationsAssembly("CinemaBookingSystemDAL")));
+
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddValidatorsFromAssembly(typeof(SpecialtyCreateDtoValidator).Assembly);
 
 builder.Services.AddScoped<ICabinetService, CabinetService>();
 builder.Services.AddScoped<IPrescriptionService, PrescriptionService>();
