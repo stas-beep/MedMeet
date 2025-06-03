@@ -14,5 +14,6 @@ namespace Business_logic.Data_Transfer_Object.For_Users
         public string Role { get; set; }
         public int? SpecialtyId { get; set; }
         public int? CabinetId { get; set; }
+        public string OldPassword { get; set; }
     }
 }

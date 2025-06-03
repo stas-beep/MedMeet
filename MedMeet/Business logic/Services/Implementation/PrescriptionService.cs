@@ -34,7 +34,8 @@ namespace Business_logic.Services.Implementation
                 throw new KeyNotFoundException($"Призначення з таким {id} не знайдено.");
             }
 
-            return new PrescriptionReadDto { Id = prescription.Id, RecordId = prescription.RecordId, Medication = prescription.Medication, Dosage = prescription.Dosage, Instructions = prescription.Instructions };
+            PrescriptionReadDto result = new PrescriptionReadDto { Id = prescription.Id, RecordId = prescription.RecordId, Medication = prescription.Medication, Dosage = prescription.Dosage, Instructions = prescription.Instructions };
+            return result;
         }
 
         public async Task<IEnumerable<PrescriptionReadDto>> GetByRecordIdAsync(int recordId)
@@ -56,7 +57,8 @@ namespace Business_logic.Services.Implementation
             await repository.AddAsync(prescription);
             await repository.SaveAsync();
 
-            return new PrescriptionReadDto { Id = prescription.Id, RecordId = prescription.RecordId, Medication = prescription.Medication, Dosage = prescription.Dosage, Instructions = prescription.Instructions };
+            PrescriptionReadDto result = new PrescriptionReadDto { Id = prescription.Id, RecordId = prescription.RecordId, Medication = prescription.Medication, Dosage = prescription.Dosage, Instructions = prescription.Instructions };
+            return result;
         }
 
         public async Task<PrescriptionReadDto> UpdateAsync(int id, PrescriptionUpdateDto dto)
@@ -74,14 +76,8 @@ namespace Business_logic.Services.Implementation
             await repository.UpdateAsync(prescription);
             await repository.SaveAsync();
 
-            return new PrescriptionReadDto
-            {
-                Id = prescription.Id,
-                RecordId = prescription.RecordId,
-                Medication = prescription.Medication,
-                Dosage = prescription.Dosage,
-                Instructions = prescription.Instructions
-            };
+            PrescriptionReadDto result = new PrescriptionReadDto { Id = prescription.Id, RecordId = prescription.RecordId, Medication = prescription.Medication, Dosage = prescription.Dosage, Instructions = prescription.Instructions };
+            return result;
         }
 
         public async Task DeleteAsync(int id)

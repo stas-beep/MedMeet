@@ -17,9 +17,6 @@ namespace Database.Models.ModelSetup
 
             builder.Property(u => u.FullName).IsRequired().HasMaxLength(150);
             builder.Property(u => u.Email).IsRequired().HasMaxLength(100);
-            builder.Property(u => u.Password).IsRequired().HasMaxLength(255);
-            builder.Property(u => u.Role).IsRequired().HasMaxLength(50);
-            
             builder.HasOne(u => u.Specialty).WithMany(s => s.Doctors).HasForeignKey(u => u.SpecialtyId).OnDelete(DeleteBehavior.Cascade);
             builder.HasOne(u => u.Cabinet).WithMany(c => c.Doctors).HasForeignKey(u => u.CabinetId).OnDelete(DeleteBehavior.Cascade);
             builder.HasMany(u => u.RecordAsPatient).WithOne(r => r.Patient).HasForeignKey(r => r.PatientId).OnDelete(DeleteBehavior.Cascade);

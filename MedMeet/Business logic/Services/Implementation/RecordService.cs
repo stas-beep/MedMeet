@@ -39,23 +39,15 @@ namespace Business_logic.Services.Implementation
 
         public async Task<RecordReadDto> GetByIdAsync(int id)
         {
-            var record = await repository.GetWithDetailsAsync(id);
+            Record record = await repository.GetWithDetailsAsync(id);
             if (record == null)
             {
                 throw new KeyNotFoundException($"Запис з таким id ({id}) не знайдено.");
             }
 
-            return new RecordReadDto
-            {
-                Id = record.Id,
-                PatientId = record.PatientId,
-                PatientName = record.Patient.FullName,
-                DoctorId = record.DoctorId,
-                DoctorName = record.Doctor.FullName,
-                AppointmentDate = record.AppointmentDate,
-                Status = record.Status,
-                Notes = record.Notes
-            };
+            RecordReadDto result = new RecordReadDto { Id = record.Id, PatientId = record.PatientId, PatientName = record.Patient.FullName, DoctorId = record.DoctorId, DoctorName = record.Doctor.FullName, AppointmentDate = record.AppointmentDate, Status = record.Status, Notes = record.Notes };
+
+            return result;
         }
 
         public async Task<IEnumerable<RecordReadDto>> GetByPatientIdAsync(int patientId)
@@ -157,39 +149,23 @@ namespace Business_logic.Services.Implementation
 
         public async Task<RecordReadDto> CreateAsync(RecordCreateDto dto)
         {
-            Record record = new Record
-            {
-                PatientId = dto.PatientId,
-                DoctorId = dto.DoctorId,
-                AppointmentDate = dto.AppointmentDate,
-                Status = dto.Status,
-                Notes = dto.Notes
-            };
+            Record record = new Record { PatientId = dto.PatientId, DoctorId = dto.DoctorId, AppointmentDate = dto.AppointmentDate, Status = dto.Status, Notes = dto.Notes };
 
             await repository.AddAsync(record);
             await repository.SaveAsync();
 
             var saved = await repository.GetWithDetailsAsync(record.Id);
-            return new RecordReadDto
-            {
-                Id = saved.Id,
-                PatientId = saved.PatientId,
-                PatientName = saved.Patient.FullName,
-                DoctorId = saved.DoctorId,
-                DoctorName = saved.Doctor.FullName,
-                AppointmentDate = saved.AppointmentDate,
-                Status = saved.Status,
-                Notes = saved.Notes
-            };
+            RecordReadDto result = new RecordReadDto { Id = record.Id, PatientId = record.PatientId, PatientName = record.Patient.FullName, DoctorId = record.DoctorId, DoctorName = record.Doctor.FullName, AppointmentDate = record.AppointmentDate, Status = record.Status, Notes = record.Notes };
+
+            return result;
         }
 
         public async Task<RecordReadDto> UpdateAsync(int id, RecordUpdateDto dto)
         {
-            var record = await repository.GetByIdAsync(id);
+            Record record = await repository.GetByIdAsync(id);
             if (record == null)
             {
                 throw new KeyNotFoundException($"Запис з таким id ({id}) не знайдено.");
-
             }
 
             record.AppointmentDate = dto.AppointmentDate;
@@ -200,17 +176,9 @@ namespace Business_logic.Services.Implementation
             await repository.SaveAsync();
 
             var updated = await repository.GetWithDetailsAsync(record.Id);
-            return new RecordReadDto
-            {
-                Id = record.Id,
-                PatientId = record.PatientId,
-                PatientName = record.Patient.FullName,
-                DoctorId = record.DoctorId,
-                DoctorName = record.Doctor.FullName,
-                AppointmentDate = record.AppointmentDate,
-                Status = record.Status,
-                Notes = record.Notes
-            };
+            RecordReadDto result = new RecordReadDto { Id = record.Id, PatientId = record.PatientId, PatientName = record.Patient.FullName, DoctorId = record.DoctorId, DoctorName = record.Doctor.FullName, AppointmentDate = record.AppointmentDate, Status = record.Status, Notes = record.Notes };
+
+            return result;
         }
 
         public async Task<IEnumerable<RecordReadDto>> GetPagedAsync(SortingParameters parameters)
@@ -300,7 +268,6 @@ namespace Business_logic.Services.Implementation
             {
                 throw new KeyNotFoundException($"Запис з таким id ({id}) не знайдено.");
             }
-
 
             await repository.DeleteAsync(record);
             await repository.SaveAsync();

@@ -8,6 +8,9 @@ using Database.Generic_Repository;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Business_logic.Rules;
+using Database.Models;
+using Microsoft.AspNetCore.Identity;
+using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +23,7 @@ builder.Services.AddDbContext<MedMeetDbContext>(options =>
     options.UseMySql(
         builder.Configuration.GetConnectionString("DefaultConnection"),
         new MySqlServerVersion(new Version(8, 0, 41)), 
-        b => b.MigrationsAssembly("CinemaBookingSystemDAL")));
+        b => b.MigrationsAssembly("CinemaBookingSystemDAL")), ServiceLifetime.Scoped);
 
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssembly(typeof(SpecialtyCreateDtoValidator).Assembly);
@@ -38,6 +41,9 @@ builder.Services.AddScoped<IRecordRepository, RecordRepository>();
 builder.Services.AddScoped<ISpecialtyRepository, SpecialtyRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
+builder.Services.AddIdentity<User, IdentityRole<int>>()
+    .AddEntityFrameworkStores<MedMeetDbContext>()
+    .AddDefaultTokenProviders();
 
 var app = builder.Build();
 

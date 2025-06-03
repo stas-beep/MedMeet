@@ -38,7 +38,9 @@ namespace Business_logic.Rules
                 .NotEmpty()
                 .WithMessage("Роль є обов’язковою.")
                 .MaximumLength(50)
-                .WithMessage("Роль не може перевищувати 50 символів.");
+                .WithMessage("Роль не може перевищувати 50 символів.")
+                .Must(role => new[] { "customer", "admin", "doctor" }.Contains(role.ToLower()))
+                .WithMessage("Роль повинна бути 'customer', 'admin' або 'doctor'.");
         }
     }
 }

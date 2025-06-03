@@ -1,32 +1,55 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Business_logic.Data_Transfer_Object.For_Pagination;
-using Business_logic.Data_Transfer_Object.For_Users;
+﻿using Business_logic.Data_Transfer_Object.For_Users;
 using Business_logic.Filters;
 using Business_logic.Services.Interfaces;
 using Business_logic.Sorting;
 using Database.Generic_Repository.Interfaces;
 using Database.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace Business_logic.Services.Implementation
 {
     public class UserService : IUserService
     {
+        private UserManager<User> userManager;
         private IUserRepository repository;
 
-        public UserService(IUserRepository userRepository)
+        public UserService(IUserRepository userRepository, UserManager<User> userManager)
         {
             repository = userRepository;
+            this.userManager = userManager;
         }
 
         public async Task<IEnumerable<UserReadDto>> GetAllAsync()
         {
             var users = await repository.GetAllAsync();
+            List<User> userList = users.ToList();
+            List<UserReadDto> userDtos = new List<UserReadDto>();
 
-            return users.Select(u => new UserReadDto { Id = u.Id, FullName = u.FullName, Email = u.Email, Role = u.Role, SpecialtyId = u.SpecialtyId, CabinetId = u.CabinetId });
+            foreach (User user in userList)
+            {
+                var roles = await userManager.GetRolesAsync(user);
+                string? role = "";
+                if (roles.Any())
+                {
+                    role = roles.FirstOrDefault();
+                }
+                else
+                {
+                    role = "Unknown role";
+                }
+
+                userDtos.Add(new UserReadDto
+                {
+                    Id = user.Id,
+                    FullName = user.FullName,
+                    Email = user.Email,
+                    Role = role,
+                    SpecialtyId = user.SpecialtyId,
+                    CabinetId = user.CabinetId
+                });
+            }
+
+            return userDtos;
         }
 
         public async Task<UserReadDto> GetByIdAsync(int id)
@@ -37,22 +60,41 @@ namespace Business_logic.Services.Implementation
             {
                 throw new KeyNotFoundException($"Користувач з таким id ({id}) не знайдено.");
             }
-            
-            return new UserReadDto { Id = user.Id, FullName = user.FullName, Email = user.Email, Role = user.Role, SpecialtyId = user.SpecialtyId, CabinetId = user.CabinetId };
+
+            var roles = await userManager.GetRolesAsync(user);
+            string? role = "";
+            if (roles.Any())
+            {
+                role = roles.FirstOrDefault();
+            }
+            else
+            {
+                role = "Unknown role";
+            }
+
+            return new UserReadDto
+            {
+                Id = user.Id,
+                FullName = user.FullName,
+                Email = user.Email,
+                Role = role,
+                SpecialtyId = user.SpecialtyId,
+                CabinetId = user.CabinetId
+            };
         }
 
         public async Task<IEnumerable<UserReadDto>> GetDoctorsAsync()
         {
-            var doctors = await repository.GetDoctorsAsync();
-            
-            return doctors.Select(u => new UserReadDto {Id = u.Id, FullName = u.FullName, Email = u.Email, Role = u.Role, SpecialtyId = u.SpecialtyId, CabinetId = u.CabinetId });
+            var doctors = await userManager.GetUsersInRoleAsync("Doctor");
+
+            return doctors.Select(u => new UserReadDto { Id = u.Id, FullName = u.FullName, Email = u.Email, Role = "Doctor", SpecialtyId = u.SpecialtyId, CabinetId = u.CabinetId });
         }
 
         public async Task<IEnumerable<UserReadDto>> GetPatientsAsync()
         {
-            var patients = await repository.GetPatientsAsync();
-            
-            return patients.Select(u => new UserReadDto {Id = u.Id, FullName = u.FullName, Email = u.Email, Role = u.Role });
+            var patients = await userManager.GetUsersInRoleAsync("Patient");
+
+            return patients.Select(u => new UserReadDto { Id = u.Id, FullName = u.FullName, Email = u.Email, Role = "Patient" });
         }
 
         public async Task<UserReadDto> GetByEmailAsync(string email)
@@ -63,30 +105,88 @@ namespace Business_logic.Services.Implementation
                 throw new KeyNotFoundException($"Користувач з таким email ({email}) не знайдено.");
             }
 
-            return new UserReadDto { Id = user.Id, FullName = user.FullName, Email = user.Email, Role = user.Role, CabinetId = user.CabinetId, SpecialtyId = user.SpecialtyId };
+            var roles = await userManager.GetRolesAsync(user);
+
+            string? role = "";
+            if (roles.Any())
+            {
+                role = roles.FirstOrDefault();
+            }
+            else
+            {
+                role = "Unknow role";
+            }
+
+            return new UserReadDto
+            {
+                Id = user.Id,
+                FullName = user.FullName,
+                Email = user.Email,
+                Role = role,
+                CabinetId = user.CabinetId,
+                SpecialtyId = user.SpecialtyId
+            };
         }
 
         public async Task<IEnumerable<UserReadDto>> SearchByNameAsync(string name)
         {
             var users = await repository.SearchByNameAsync(name);
-            
-            return users.Select(u => new UserReadDto {Id = u.Id, FullName = u.FullName, Email = u.Email, Role = u.Role, SpecialtyId = u.SpecialtyId, CabinetId = u.CabinetId });
+            List<UserReadDto> userDtos = new List<UserReadDto>();
+
+            foreach (var user in users)
+            {
+                var roles = await userManager.GetRolesAsync(user);
+                string? role = "";
+                if (roles.Any())
+                {
+                    role = roles.FirstOrDefault();
+                }
+                else
+                {
+                    role = "Unknow role";
+                }
+
+                UserReadDto result = new UserReadDto { Id = user.Id, FullName = user.FullName, Email = user.Email, Role = role, SpecialtyId = user.SpecialtyId, CabinetId = user.CabinetId };
+                userDtos.Add(result);
+            }
+
+            return userDtos;
         }
 
         public async Task<UserReadDto> CreateAsync(UserCreateDto dto)
         {
-            User user = new User { FullName = dto.FullName, Email = dto.Email, Role = dto.Role, Password = dto.Password, SpecialtyId = dto.SpecialtyId, CabinetId = dto.CabinetId };
-            
-            await repository.AddAsync(user);
+            User user = new User { FullName = dto.FullName, Email = dto.Email, UserName = dto.Email, SpecialtyId = dto.SpecialtyId, CabinetId = dto.CabinetId};
+            var result = await userManager.CreateAsync(user, dto.Password);
             await repository.SaveAsync();
-            
-            return new UserReadDto { Id = user.Id, FullName = user.FullName, Email = user.Email, Role = user.Role };
+
+            if (!result.Succeeded)
+            {
+                throw new Exception("Щось пішло не так");
+            }
+
+            if (!string.IsNullOrEmpty(dto.Role))
+            {
+                var roleResult = await userManager.AddToRoleAsync(user, dto.Role);
+            }
+
+            var roles = await userManager.GetRolesAsync(user);
+            string role = "";
+            if (roles.Any())
+            {
+                role = roles.FirstOrDefault();
+            }
+            else
+            {
+                role = "Unknow role";
+            }
+
+            UserReadDto res = new UserReadDto { Id = user.Id, FullName = user.FullName, Email = user.Email, Role = role, SpecialtyId = user.SpecialtyId, CabinetId = user.CabinetId };
+            return res;
         }
 
         public async Task<UserReadDto> UpdateAsync(int id, UserUpdateDto dto)
         {
-            var user = await repository.GetByIdAsync(id);
-
+            User user = await userManager.FindByIdAsync(id.ToString());
             if (user == null)
             {
                 throw new KeyNotFoundException($"Користувач з таким id ({id}) не знайдено.");
@@ -94,27 +194,66 @@ namespace Business_logic.Services.Implementation
 
             user.FullName = dto.FullName;
             user.Email = dto.Email;
-            user.Role = dto.Role;
+            user.UserName = dto.Email;
             user.SpecialtyId = dto.SpecialtyId;
             user.CabinetId = dto.CabinetId;
 
-            if (!string.IsNullOrEmpty(dto.Password))
+            var updateResult = await userManager.UpdateAsync(user);
+            await repository.SaveAsync();
+            if (!updateResult.Succeeded)
             {
-                user.Password = dto.Password;
+                throw new Exception(string.Join("; ", updateResult.Errors.Select(e => e.Description)));
             }
 
-            await repository.UpdateAsync(user);
-            await repository.SaveAsync();
-
-            return new UserReadDto
+            if (!string.IsNullOrEmpty(dto.Password))
             {
-                Id = user.Id,
-                FullName = user.FullName,
-                Email = user.Email,
-                Role = user.Role,
-                CabinetId = user.CabinetId,
-                SpecialtyId = user.SpecialtyId
-            };
+                if (string.IsNullOrEmpty(dto.OldPassword))
+                {
+                    throw new Exception("Потрібно вказати старий пароль для оновлення.");
+                }
+
+                var changePasswordResult = await userManager.ChangePasswordAsync(user, dto.OldPassword, dto.Password);
+
+                if (!changePasswordResult.Succeeded)
+                {
+                    throw new Exception("Старий пароль некоректний або пароль не вдалося змінити.");
+                }
+            }
+
+            if (!string.IsNullOrEmpty(dto.Role))
+            {
+                var currentRoles = await userManager.GetRolesAsync(user);
+
+                if (!currentRoles.Contains(dto.Role))
+                {
+                    var removeResult = await userManager.RemoveFromRolesAsync(user, currentRoles);
+                    if (!removeResult.Succeeded)
+                    {
+                        throw new Exception("Щось пішло не так....");
+                    }
+
+                    var addResult = await userManager.AddToRoleAsync(user, dto.Role);
+                    if (!addResult.Succeeded)
+                    {
+                        throw new Exception("Щось пішло не так....");
+                    }
+                }
+            }
+
+            var rolesAfterUpdate = await userManager.GetRolesAsync(user);
+            string role = "";
+            if (rolesAfterUpdate.Any())
+            {
+                role = rolesAfterUpdate.FirstOrDefault();
+            }
+            else
+            {
+                role = "Unknow role";
+            }
+
+            await repository.SaveAsync();
+            UserReadDto res = new UserReadDto { Id = user.Id, FullName = user.FullName, Email = user.Email, Role = role, SpecialtyId = user.SpecialtyId, CabinetId = user.CabinetId };
+            return res;
         }
 
         public async Task<IEnumerable<UserReadDto>> GetPagedAsync(SortingParameters parameters)
@@ -146,17 +285,6 @@ namespace Business_logic.Services.Implementation
                     else
                     {
                         sorted = sorted.OrderBy(u => u.Email);
-                    }
-                }
-                else if (sortBy == "role")
-                {
-                    if (parameters.IsDescending)
-                    {
-                        sorted = sorted.OrderByDescending(u => u.Role);
-                    }
-                    else
-                    {
-                        sorted = sorted.OrderBy(u => u.Role);
                     }
                 }
                 else if (sortBy == "specialtyid")
@@ -205,12 +333,12 @@ namespace Business_logic.Services.Implementation
                 }
             }
 
-            return Paginate(sorted, parameters.Page, parameters.PageSize);
+            return await PaginateAsync(sorted, parameters.Page, parameters.PageSize);
         }
         public async Task DeleteAsync(int id)
         {
-            var user = await repository.GetByIdAsync(id);
-            
+            User user = await repository.GetByIdAsync(id);
+
             if (user == null)
             {
                 throw new KeyNotFoundException($"Користувач з таким id ({id}) не знайдено.");
@@ -235,11 +363,6 @@ namespace Business_logic.Services.Implementation
                 filtered = filtered.Where(u => u.Email.Contains(filter.Email, StringComparison.OrdinalIgnoreCase));
             }
 
-            if (!string.IsNullOrWhiteSpace(filter.Role))
-            {
-                filtered = filtered.Where(u => u.Role == filter.Role);
-            }
-
             if (filter.SpecialtyId.HasValue)
             {
                 filtered = filtered.Where(u => u.SpecialtyId == filter.SpecialtyId.Value);
@@ -250,24 +373,32 @@ namespace Business_logic.Services.Implementation
                 filtered = filtered.Where(u => u.CabinetId == filter.CabinetId.Value);
             }
 
-            return Paginate(filtered, filter.Page, filter.PageSize);
+            return await PaginateAsync(filtered, filter.Page, filter.PageSize);
         }
 
-        private List<UserReadDto> Paginate(IEnumerable<User> users, int page, int pageSize)
+        private async Task<List<UserReadDto>> PaginateAsync(IEnumerable<User> users, int page, int pageSize)
         {
-            return users
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .Select(u => new UserReadDto
+            var pagedUsers = users.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+            List<UserReadDto> result = new List<UserReadDto>();
+
+            foreach (var user in pagedUsers)
+            {
+                var roles = await userManager.GetRolesAsync(user);
+                string role = "";
+                if (roles.Any())
                 {
-                    Id = u.Id,
-                    FullName = u.FullName,
-                    Email = u.Email,
-                    Role = u.Role,
-                    SpecialtyId = u.SpecialtyId,
-                    CabinetId = u.CabinetId
-                })
-                .ToList();
+                    role = roles.FirstOrDefault();
+                }
+                else
+                {
+                    role = "Unknow role";
+                }
+
+                UserReadDto newUser = new UserReadDto { Id = user.Id, FullName = user.FullName, Email = user.Email, Role = role, SpecialtyId = user.SpecialtyId, CabinetId = user.CabinetId };
+                result.Add(newUser);
+            }
+
+            return result;
         }
     }
 }

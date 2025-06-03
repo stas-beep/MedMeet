@@ -13,16 +13,6 @@ namespace Database.Generic_Repository
     {
         public UserRepository(MedMeetDbContext context) : base(context) { }
 
-        public async Task<IEnumerable<User>> GetDoctorsAsync()
-        {
-            return await databaseSet.Where(u => u.Role == "Doctor").ToListAsync();
-        }
-
-        public async Task<IEnumerable<User>> GetPatientsAsync()
-        {
-            return await databaseSet.Where(u => u.Role == "Patient").ToListAsync();
-        }
-
         public async Task<User> GetWithDetailsAsync(int id)
         {
             return await databaseSet.Include(u => u.Cabinet).Include(u => u.Specialty).Include(u => u.RecordAsDoctor).Include(u => u.RecordAsPatient).FirstOrDefaultAsync(u => u.Id == id);

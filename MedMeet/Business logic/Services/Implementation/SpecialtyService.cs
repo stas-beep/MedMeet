@@ -36,7 +36,8 @@ namespace Business_logic.Services.Implementation
                 throw new KeyNotFoundException($"Спеціальність з таким id ({id}) не знайдено.");
             }
             
-            return new SpecialtyReadDto { Id = specialty.Id, Name = specialty.Name };
+            SpecialtyReadDto result = new SpecialtyReadDto { Id = specialty.Id, Name = specialty.Name };
+            return result;
         }
 
         public async Task<IEnumerable<SpecialtyReadDto>> SearchByNameAsync(string name)
@@ -52,8 +53,9 @@ namespace Business_logic.Services.Implementation
             
             await repository.AddAsync(specialty);
             await repository.SaveAsync();
-            
-            return new SpecialtyReadDto { Id = specialty.Id, Name = specialty.Name };
+
+            SpecialtyReadDto result = new SpecialtyReadDto { Id = specialty.Id, Name = specialty.Name };
+            return result;
         }
 
         public async Task<SpecialtyReadDto> UpdateAsync(int id, SpecialtyUpdateDto dto)
@@ -63,7 +65,6 @@ namespace Business_logic.Services.Implementation
             if (specialty == null)
             {
                 throw new KeyNotFoundException($"Спеціальність з таким id ({id}) не знайдено.");
-
             }
 
             specialty.Name = dto.Name;
@@ -71,7 +72,8 @@ namespace Business_logic.Services.Implementation
             await repository.UpdateAsync(specialty);
             await repository.SaveAsync();
 
-            return new SpecialtyReadDto { Id = specialty.Id, Name = specialty.Name };
+            SpecialtyReadDto result = new SpecialtyReadDto { Id = specialty.Id, Name = specialty.Name };
+            return result;
         }
 
         public async Task DeleteAsync(int id)

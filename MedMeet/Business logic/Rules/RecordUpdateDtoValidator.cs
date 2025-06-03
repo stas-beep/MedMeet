@@ -20,9 +20,11 @@ namespace Business_logic.Rules
 
             RuleFor(x => x.Status)
                 .NotEmpty()
-                .WithMessage("Статує є обов'язковим")
+                .WithMessage("Статус є обов'язковим")
                 .MaximumLength(50)
-                .WithMessage("Статус не може перевищувати 50 символів.");
+                .WithMessage("Статус не може перевищувати 50 символів.")
+                .Must(status => new[] { "scheduled", "completed", "cancelled" }.Contains(status.ToLower()))
+                .WithMessage("Статус повинен бути 'Scheduled', 'Completed' або 'Cancelled'.");
 
             RuleFor(x => x.Notes)
                 .NotEmpty()

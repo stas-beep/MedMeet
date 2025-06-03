@@ -34,7 +34,9 @@ namespace Business_logic.Services.Implementation
                 return null;
             }
 
-            return new CabinetReadDto { Id = cabinet.Id, Name = cabinet.Name };
+            CabinetReadDto result = new CabinetReadDto { Id = cabinet.Id, Name = cabinet.Name };
+
+            return result;
         }
 
         public async Task<IEnumerable<CabinetReadDto>> GetByNameAsync(string name)
@@ -50,7 +52,9 @@ namespace Business_logic.Services.Implementation
             await repository.AddAsync(cabinet);
             await repository.SaveAsync();
 
-            return new CabinetReadDto { Id = cabinet.Id, Name = cabinet.Name };
+            CabinetReadDto result = new CabinetReadDto { Id = cabinet.Id, Name = cabinet.Name };
+
+            return result;
         }
 
         public async Task<CabinetReadDto> UpdateAsync(int id, CabinetUpdateDto dto)
@@ -63,12 +67,11 @@ namespace Business_logic.Services.Implementation
 
             cabinet.Name = dto.Name;
             await repository.UpdateAsync(cabinet);
+            await repository.SaveAsync();
 
-            return new CabinetReadDto
-            {
-                Id = cabinet.Id,
-                Name = cabinet.Name
-            };
+            CabinetReadDto result = new CabinetReadDto { Id = cabinet.Id, Name = cabinet.Name };
+
+            return result;
         }
 
         public async Task DeleteAsync(int id)

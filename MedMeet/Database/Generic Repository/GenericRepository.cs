@@ -32,18 +32,19 @@ namespace Database.Generic_Repository
         public async Task AddAsync(T entity)
         {
             await databaseSet.AddAsync(entity);
+            await database.SaveChangesAsync();
         }
 
-        public Task UpdateAsync(T entity)
+        public async Task UpdateAsync(T entity)
         {
             databaseSet.Update(entity);
-            return Task.CompletedTask;
+            await database.SaveChangesAsync();
         }
 
-        public Task DeleteAsync(T entity)
+        public async Task DeleteAsync(T entity)
         {
             databaseSet.Remove(entity);
-            return Task.CompletedTask;
+            await database.SaveChangesAsync();
         }
 
         public async Task SaveAsync()
