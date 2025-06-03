@@ -7,6 +7,7 @@ using Business_logic.Data_Transfer_Object.For_Pagination;
 using Business_logic.Data_Transfer_Object.For_Prescription;
 using Business_logic.Data_Transfer_Object.For_Users;
 using Business_logic.Filters;
+using Business_logic.Sorting;
 
 namespace Business_logic.Services.Interfaces
 {
@@ -20,6 +21,6 @@ namespace Business_logic.Services.Interfaces
         Task<PrescriptionReadDto> UpdateAsync(int id, PrescriptionUpdateDto dto);
         Task DeleteAsync(int id);
         Task<IEnumerable<PrescriptionReadDto>> GetFilteredAsync(PrescriptionFilterDto filter);
-        Task<IEnumerable<PrescriptionReadDto>> GetPagedAsync(QueryParameters parameters);
+        Task<IEnumerable<PrescriptionReadDto>> GetPagedAsync(SortingParameters parameters);
     }
 }

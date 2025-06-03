@@ -7,6 +7,7 @@ using Business_logic.Data_Transfer_Object.For_Pagination;
 using Business_logic.Data_Transfer_Object.For_Users;
 using Business_logic.Filters;
 using Business_logic.Services.Interfaces;
+using Business_logic.Sorting;
 using Database.Generic_Repository.Interfaces;
 using Database.Models;
 
@@ -116,13 +117,96 @@ namespace Business_logic.Services.Implementation
             };
         }
 
-        public async Task<IEnumerable<UserReadDto>> GetPagedAsync(QueryParameters parameters)
+        public async Task<IEnumerable<UserReadDto>> GetPagedAsync(SortingParameters parameters)
         {
             var allUsers = await repository.GetAllAsync();
-            return Paginate(allUsers, parameters.Page, parameters.PageSize);
+            var sorted = allUsers.AsQueryable();
+
+            if (parameters.SortBy != null)
+            {
+                var sortBy = parameters.SortBy.ToLower();
+
+                if (sortBy == "fullname")
+                {
+                    if (parameters.IsDescending)
+                    {
+                        sorted = sorted.OrderByDescending(u => u.FullName);
+                    }
+                    else
+                    {
+                        sorted = sorted.OrderBy(u => u.FullName);
+                    }
+                }
+                else if (sortBy == "email")
+                {
+                    if (parameters.IsDescending)
+                    {
+                        sorted = sorted.OrderByDescending(u => u.Email);
+                    }
+                    else
+                    {
+                        sorted = sorted.OrderBy(u => u.Email);
+                    }
+                }
+                else if (sortBy == "role")
+                {
+                    if (parameters.IsDescending)
+                    {
+                        sorted = sorted.OrderByDescending(u => u.Role);
+                    }
+                    else
+                    {
+                        sorted = sorted.OrderBy(u => u.Role);
+                    }
+                }
+                else if (sortBy == "specialtyid")
+                {
+                    if (parameters.IsDescending)
+                    {
+                        sorted = sorted.OrderByDescending(u => u.SpecialtyId);
+                    }
+                    else
+                    {
+                        sorted = sorted.OrderBy(u => u.SpecialtyId);
+                    }
+                }
+                else if (sortBy == "cabinetid")
+                {
+                    if (parameters.IsDescending)
+                    {
+                        sorted = sorted.OrderByDescending(u => u.CabinetId);
+                    }
+                    else
+                    {
+                        sorted = sorted.OrderBy(u => u.CabinetId);
+                    }
+                }
+                else
+                {
+                    if (parameters.IsDescending)
+                    {
+                        sorted = sorted.OrderByDescending(u => u.Id);
+                    }
+                    else
+                    {
+                        sorted = sorted.OrderBy(u => u.Id);
+                    }
+                }
+            }
+            else
+            {
+                if (parameters.IsDescending)
+                {
+                    sorted = sorted.OrderByDescending(u => u.Id);
+                }
+                else
+                {
+                    sorted = sorted.OrderBy(u => u.Id);
+                }
+            }
+
+            return Paginate(sorted, parameters.Page, parameters.PageSize);
         }
-
-
         public async Task DeleteAsync(int id)
         {
             var user = await repository.GetByIdAsync(id);

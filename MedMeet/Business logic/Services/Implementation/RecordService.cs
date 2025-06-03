@@ -6,6 +6,7 @@ using Business_logic.Data_Transfer_Object.For_Pagination;
 using Business_logic.Data_Transfer_Object.For_Record;
 using Business_logic.Filters;
 using Business_logic.Services.Interfaces;
+using Business_logic.Sorting;
 using Database.Generic_Repository.Interfaces;
 using Database.Models;
 
@@ -212,10 +213,84 @@ namespace Business_logic.Services.Implementation
             };
         }
 
-        public async Task<IEnumerable<RecordReadDto>> GetPagedAsync(QueryParameters parameters)
+        public async Task<IEnumerable<RecordReadDto>> GetPagedAsync(SortingParameters parameters)
         {
             var allRecords = await repository.GetAllWithDetailsAsync();
-            return Paginate(allRecords, parameters.Page, parameters.PageSize);
+            var sorted = allRecords.AsQueryable();
+            if (parameters.SortBy != null)
+            {
+                var sortBy = parameters.SortBy.ToLower();
+
+                if (sortBy == "appointmentdate")
+                {
+                    if (parameters.IsDescending)
+                    {
+                        sorted = sorted.OrderByDescending(r => r.AppointmentDate);
+                    }
+                    else
+                    {
+                        sorted = sorted.OrderBy(r => r.AppointmentDate);
+                    }
+                }
+                else if (sortBy == "status")
+                {
+                    if (parameters.IsDescending)
+                    {
+                        sorted = sorted.OrderByDescending(r => r.Status);
+                    }
+                    else
+                    {
+                        sorted = sorted.OrderBy(r => r.Status);
+                    }
+                }
+                else if (sortBy == "doctorname")
+                {
+                    if (parameters.IsDescending)
+                    {
+                        sorted = sorted.OrderByDescending(r => r.Doctor.FullName);
+                    }
+                    else
+                    {
+                        sorted = sorted.OrderBy(r => r.Doctor.FullName);
+                    }
+                }
+                else if (sortBy == "patientname")
+                {
+                    if (parameters.IsDescending)
+                    {
+                        sorted = sorted.OrderByDescending(r => r.Patient.FullName);
+                    }
+                    else
+                    {
+                        sorted = sorted.OrderBy(r => r.Patient.FullName);
+                    }
+                }
+                else
+                {
+                    if (parameters.IsDescending)
+                    {
+                        sorted = sorted.OrderByDescending(r => r.Id);
+                    }
+                    else
+                    {
+                        sorted = sorted.OrderBy(r => r.Id);
+                    }
+                }
+            }
+            else
+            {
+                if (parameters.IsDescending)
+                {
+                    sorted = sorted.OrderByDescending(r => r.Id);
+                }
+                else
+                {
+                    sorted = sorted.OrderBy(r => r.Id);
+                }
+            }
+
+            return Paginate(sorted, parameters.Page, parameters.PageSize);
+
         }
 
         public async Task DeleteAsync(int id)

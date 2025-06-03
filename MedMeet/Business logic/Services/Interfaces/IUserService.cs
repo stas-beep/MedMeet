@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Business_logic.Data_Transfer_Object.For_Pagination;
 using Business_logic.Data_Transfer_Object.For_Users;
 using Business_logic.Filters;
+using Business_logic.Sorting;
 
 namespace Business_logic.Services.Interfaces
 {
@@ -20,7 +21,7 @@ namespace Business_logic.Services.Interfaces
         Task<UserReadDto> CreateAsync(UserCreateDto dto);
         Task<UserReadDto> UpdateAsync(int id, UserUpdateDto dto);
         Task DeleteAsync(int id);
-        Task<IEnumerable<UserReadDto>> GetPagedAsync(QueryParameters parameters);
+        Task<IEnumerable<UserReadDto>> GetPagedAsync(SortingParameters parameters);
         Task<IEnumerable<UserReadDto>> GetFilteredAsync(UserFilterDto filter);
     }
 }

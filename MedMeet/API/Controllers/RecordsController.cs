@@ -2,6 +2,7 @@
 using Business_logic.Data_Transfer_Object.For_Record;
 using Business_logic.Filters;
 using Business_logic.Services.Interfaces;
+using Business_logic.Sorting;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -103,7 +104,7 @@ namespace API.Controllers
         }
 
         [HttpGet("paged")]
-        public async Task<ActionResult<IEnumerable<RecordReadDto>>> GetPaged([FromQuery] QueryParameters parameters)
+        public async Task<ActionResult<IEnumerable<RecordReadDto>>> GetPaged([FromQuery] SortingParameters parameters)
         {
             var pagedResult = await _recordService.GetPagedAsync(parameters);
             return Ok(pagedResult);

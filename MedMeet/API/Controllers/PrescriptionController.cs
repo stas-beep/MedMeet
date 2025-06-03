@@ -2,6 +2,7 @@
 using Business_logic.Data_Transfer_Object.For_Prescription;
 using Business_logic.Filters;
 using Business_logic.Services.Interfaces;
+using Business_logic.Sorting;
 using Database.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -90,7 +91,7 @@ namespace API.Controllers
         }
 
         [HttpGet("paged")]
-        public async Task<ActionResult<IEnumerable<PrescriptionReadDto>>> GetPaged([FromQuery] QueryParameters parameters)
+        public async Task<ActionResult<IEnumerable<PrescriptionReadDto>>> GetPaged([FromQuery] SortingParameters parameters)
         {
             var result = await _service.GetPagedAsync(parameters);
             return Ok(result);

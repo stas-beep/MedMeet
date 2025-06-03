@@ -5,6 +5,7 @@ using Business_logic.Data_Transfer_Object.For_Pagination;
 using Business_logic.Data_Transfer_Object.For_Prescription;
 using Business_logic.Filters;
 using Business_logic.Services.Interfaces;
+using Business_logic.Sorting;
 using Database.Generic_Repository.Interfaces;
 using Database.Models;
 
@@ -95,10 +96,85 @@ namespace Business_logic.Services.Implementation
             await repository.SaveAsync();
         }
 
-        public async Task<IEnumerable<PrescriptionReadDto>> GetPagedAsync(QueryParameters parameters)
+        public async Task<IEnumerable<PrescriptionReadDto>> GetPagedAsync(SortingParameters parameters)
         {
             var allPrescriptions = await repository.GetAllAsync();
-            return Paginate(allPrescriptions, parameters.Page, parameters.PageSize);
+            var sorted = allPrescriptions.AsQueryable();
+
+            if (parameters.SortBy != null)
+            {
+                string sortBy = parameters.SortBy.ToLower();
+
+                if (sortBy == "medication")
+                {
+                    if (parameters.IsDescending)
+                    {
+                        sorted = sorted.OrderByDescending(p => p.Medication);
+                    }
+                    else
+                    {
+                        sorted = sorted.OrderBy(p => p.Medication);
+                    }
+                }
+                else if (sortBy == "dosage")
+                {
+                    if (parameters.IsDescending)
+                    {
+                        sorted = sorted.OrderByDescending(p => p.Dosage);
+                    }
+                    else
+                    {
+                        sorted = sorted.OrderBy(p => p.Dosage);
+                    }
+                }
+                else if (sortBy == "recordid")
+                {
+                    if (parameters.IsDescending)
+                    {
+                        sorted = sorted.OrderByDescending(p => p.RecordId);
+                    }
+                    else
+                    {
+                        sorted = sorted.OrderBy(p => p.RecordId);
+                    }
+                }
+                else if (sortBy == "instructions")
+                {
+                    if (parameters.IsDescending)
+                    {
+                        sorted = sorted.OrderByDescending(p => p.Instructions);
+                    }
+                    else
+                    {
+                        sorted = sorted.OrderBy(p => p.Instructions);
+                    }
+                }
+                else
+                {
+                    if (parameters.IsDescending)
+                    {
+                        sorted = sorted.OrderByDescending(p => p.Id);
+                    }
+                    else
+                    {
+                        sorted = sorted.OrderBy(p => p.Id);
+                    }
+                }
+            }
+            else
+            {
+                if (parameters.IsDescending)
+                {
+                    sorted = sorted.OrderByDescending(p => p.Id);
+                }
+                else
+                {
+                    sorted = sorted.OrderBy(p => p.Id);
+                }
+            }
+
+            return Paginate(sorted, parameters.Page, parameters.PageSize);
+
         }
 
         public async Task<IEnumerable<PrescriptionReadDto>> GetFilteredAsync(PrescriptionFilterDto filter)
