@@ -1,11 +1,13 @@
-﻿using Business_logic.Data_Transfer_Object.For_Record;
+﻿using Business_logic.Data_Transfer_Object.For_Pagination;
+using Business_logic.Data_Transfer_Object.For_Record;
+using Business_logic.Filters;
 using Business_logic.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/records")]
     public class RecordsController: ControllerBase
     {
         private readonly IRecordService _recordService;
@@ -32,7 +34,7 @@ namespace API.Controllers
             }
             catch (KeyNotFoundException)
             {
-                return NotFound($"Record with id {id} not found.");
+                return NotFound($"Не можемо знайти запис з таким id ({id}).");
             }
         }
         
@@ -81,7 +83,7 @@ namespace API.Controllers
             }
             catch (KeyNotFoundException)
             {
-                return NotFound($"Record with id {id} not found.");
+                return NotFound($"Не можемо знайти запис з таким id ({id}).");
             }
         }
 
@@ -95,8 +97,23 @@ namespace API.Controllers
             }
             catch (KeyNotFoundException)
             {
-                return NotFound($"Record with id {id} not found.");
+                return NotFound($"Не можемо знайти запис з таким id ({id}).");
+
             }
+        }
+
+        [HttpGet("paged")]
+        public async Task<ActionResult<IEnumerable<RecordReadDto>>> GetPaged([FromQuery] QueryParameters parameters)
+        {
+            var pagedResult = await _recordService.GetPagedAsync(parameters);
+            return Ok(pagedResult);
+        }
+
+        [HttpGet("filter")]
+        public async Task<IActionResult> GetFiltered([FromQuery] RecordFilterDto filter)
+        {
+            var records = await _recordService.GetFilteredAsync(filter);
+            return Ok(records);
         }
     }
 }

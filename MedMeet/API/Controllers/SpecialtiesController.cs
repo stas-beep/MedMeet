@@ -1,11 +1,12 @@
-﻿using Business_logic.Data_Transfer_Object.For_Speciality;
+﻿using Business_logic.Data_Transfer_Object.For_Pagination;
+using Business_logic.Data_Transfer_Object.For_Speciality;
 using Business_logic.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/specialties")]
     public class SpecialtiesController : ControllerBase
     {
         private readonly ISpecialtyService _specialtyService;
@@ -32,7 +33,7 @@ namespace API.Controllers
             }
             catch (KeyNotFoundException)
             {
-                return NotFound($"Specialty with id {id} not found.");
+                return NotFound($"Спеціальність з такою id ({id}) не знайдена.");
             }
         }
 
@@ -60,7 +61,8 @@ namespace API.Controllers
             }
             catch (KeyNotFoundException)
             {
-                return NotFound($"Specialty with id {id} not found.");
+                return NotFound($"Спеціальність з такою id ({id}) не знайдена.");
+
             }
         }
 
@@ -74,7 +76,7 @@ namespace API.Controllers
             }
             catch (KeyNotFoundException)
             {
-                return NotFound($"Specialty with id {id} not found.");
+                return NotFound($"Спеціальність з такою id ({id}) не знайдена.");
             }
         }
     }

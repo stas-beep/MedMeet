@@ -1,4 +1,6 @@
-﻿using Business_logic.Data_Transfer_Object.For_Prescription;
+﻿using Business_logic.Data_Transfer_Object.For_Pagination;
+using Business_logic.Data_Transfer_Object.For_Prescription;
+using Business_logic.Filters;
 using Business_logic.Services.Interfaces;
 using Database.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -6,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/prescription")]
     public class PrescriptionController : ControllerBase
     {
         private readonly IPrescriptionService _service;
@@ -33,7 +35,7 @@ namespace API.Controllers
             }
             catch (KeyNotFoundException)
             {
-                return NotFound($"Cannot find prescription with this {id}");
+                return NotFound($"Не можемо знайти призначення з таким id ({id})");
             }
         }
 
@@ -68,7 +70,7 @@ namespace API.Controllers
             }
             catch (KeyNotFoundException)
             {
-                return NotFound($"Cannot find prescription with this {id}");
+                return NotFound($"Не можемо знайти призначення з таким id ({id})");
             }
         }
 
@@ -82,8 +84,23 @@ namespace API.Controllers
             }
             catch (KeyNotFoundException)
             {
-                return NotFound($"Cannot find prescription with this {id}");
+                return NotFound($"Не можемо знайти призначення з таким id ({id})");
+
             }
+        }
+
+        [HttpGet("paged")]
+        public async Task<ActionResult<IEnumerable<PrescriptionReadDto>>> GetPaged([FromQuery] QueryParameters parameters)
+        {
+            var result = await _service.GetPagedAsync(parameters);
+            return Ok(result);
+        }
+
+        [HttpGet("filter")]
+        public async Task<IActionResult> GetFiltered([FromQuery] PrescriptionFilterDto filter)
+        {
+            var prescriptions = await _service.GetFilteredAsync(filter);
+            return Ok(prescriptions);
         }
     }
 }

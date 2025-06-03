@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Business_logic.Data_Transfer_Object.For_Pagination;
 using Business_logic.Data_Transfer_Object.For_Users;
+using Business_logic.Filters;
 
 namespace Business_logic.Services.Interfaces
 {
@@ -18,5 +20,7 @@ namespace Business_logic.Services.Interfaces
         Task<UserReadDto> CreateAsync(UserCreateDto dto);
         Task<UserReadDto> UpdateAsync(int id, UserUpdateDto dto);
         Task DeleteAsync(int id);
+        Task<IEnumerable<UserReadDto>> GetPagedAsync(QueryParameters parameters);
+        Task<IEnumerable<UserReadDto>> GetFilteredAsync(UserFilterDto filter);
     }
 }

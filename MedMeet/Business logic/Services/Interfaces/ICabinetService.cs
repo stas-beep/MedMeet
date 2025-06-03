@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Business_logic.Data_Transfer_Object.For_Cabinets;
+using Business_logic.Data_Transfer_Object.For_Pagination;
 using Database.Models;
 
 namespace Business_logic.Services.Interfaces

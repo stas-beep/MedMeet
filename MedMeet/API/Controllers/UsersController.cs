@@ -1,11 +1,14 @@
-﻿using Business_logic.Data_Transfer_Object.For_Users;
+﻿using Business_logic.Data_Transfer_Object.For_Pagination;
+using Business_logic.Data_Transfer_Object.For_Users;
+using Business_logic.Filters;
+using Business_logic.Services.Implementation;
 using Business_logic.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/users")]
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -32,7 +35,7 @@ namespace API.Controllers
             }
             catch (KeyNotFoundException)
             {
-                return NotFound($"User with id {id} not found.");
+                return NotFound($"Користувач з таким id ({id}) не знайдений.");
             }
         }
 
@@ -60,7 +63,7 @@ namespace API.Controllers
             }
             catch (KeyNotFoundException)
             {
-                return NotFound($"User with email {email} not found.");
+                return NotFound($"Користувач з таким email ({email}) не знайдений.");
             }
         }
 
@@ -88,7 +91,7 @@ namespace API.Controllers
             }
             catch (KeyNotFoundException)
             {
-                return NotFound($"User with id {id} not found.");
+                return NotFound($"Користувач з таким id ({id}) не знайдений.");
             }
         }
 
@@ -102,8 +105,22 @@ namespace API.Controllers
             }
             catch (KeyNotFoundException)
             {
-                return NotFound($"User with id {id} not found.");
+                return NotFound($"Користувач з таким id ({id}) не знайдений.");
             }
+        }
+
+        [HttpGet("paged")]
+        public async Task<ActionResult<IEnumerable<UserReadDto>>> GetPaged([FromQuery] QueryParameters parameters)
+        {
+            var pagedUsers = await _userService.GetPagedAsync(parameters);
+            return Ok(pagedUsers);
+        }
+
+        [HttpGet("filter")]
+        public async Task<IActionResult> GetFiltered([FromQuery] UserFilterDto filter)
+        {
+            var records = await _userService.GetFilteredAsync(filter);
+            return Ok(records);
         }
     }
 }

@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Business_logic.Data_Transfer_Object.For_Pagination;
 using Business_logic.Data_Transfer_Object.For_Prescription;
+using Business_logic.Data_Transfer_Object.For_Users;
+using Business_logic.Filters;
 
 namespace Business_logic.Services.Interfaces
 {
@@ -16,5 +19,7 @@ namespace Business_logic.Services.Interfaces
         Task<PrescriptionReadDto> CreateAsync(PrescriptionCreateDto dto);
         Task<PrescriptionReadDto> UpdateAsync(int id, PrescriptionUpdateDto dto);
         Task DeleteAsync(int id);
+        Task<IEnumerable<PrescriptionReadDto>> GetFilteredAsync(PrescriptionFilterDto filter);
+        Task<IEnumerable<PrescriptionReadDto>> GetPagedAsync(QueryParameters parameters);
     }
 }

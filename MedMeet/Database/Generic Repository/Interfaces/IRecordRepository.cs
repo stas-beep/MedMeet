@@ -14,5 +14,6 @@ namespace Database.Generic_Repository.Interfaces
         Task<IEnumerable<Record>> GetByStatusAsync(string status);
         Task<IEnumerable<Record>> GetUpcomingAsync(DateTime from, DateTime? to = null);
         Task<Record> GetWithDetailsAsync(int id);
+        Task<IEnumerable<Record>> GetAllWithDetailsAsync();
     }
 }

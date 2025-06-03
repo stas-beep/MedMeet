@@ -1,4 +1,5 @@
 ﻿using Business_logic.Data_Transfer_Object.For_Cabinets;
+using Business_logic.Data_Transfer_Object.For_Pagination;
 using Business_logic.Services.Interfaces;
 using Database.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -6,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/cabinet")]
     public class CabinetController : ControllerBase
     {
         private ICabinetService _cabinetService;
@@ -29,7 +30,7 @@ namespace API.Controllers
             var cabinet = await _cabinetService.GetByIdAsync(id);
             if (cabinet == null)
             {
-                return NotFound($"Cabinet with this {id} not found!");
+                return NotFound($"Кабінет з таким id ({id}) не знайдений!");
             }
             return Ok(cabinet);
         }
@@ -40,7 +41,7 @@ namespace API.Controllers
             var cabinet = await _cabinetService.GetByNameAsync(name);
             if (!cabinet.Any())
             {
-                return NotFound($"Cabinet with this {name} not found!");
+                return NotFound($"Кабінет з таким іменем ({name}) не знайдений!");
             }
             return Ok(cabinet);
         }
@@ -84,6 +85,5 @@ namespace API.Controllers
                 return NotFound(ex.Message);
             }
         }
-
     }
 }

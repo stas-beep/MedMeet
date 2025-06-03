@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Business_logic.Data_Transfer_Object.For_Pagination;
 using Business_logic.Data_Transfer_Object.For_Speciality;
 using Business_logic.Services.Interfaces;
 using Database.Generic_Repository;
@@ -32,7 +33,7 @@ namespace Business_logic.Services.Implementation
             var specialty = await repository.GetWithDoctorsAsync(id);
             if (specialty == null)
             {
-                throw new KeyNotFoundException($"Specialty with id {id} not found.");
+                throw new KeyNotFoundException($"Спеціальність з таким id ({id}) не знайдено.");
             }
             
             return new SpecialtyReadDto { Id = specialty.Id, Name = specialty.Name };
@@ -61,7 +62,8 @@ namespace Business_logic.Services.Implementation
 
             if (specialty == null)
             {
-                throw new KeyNotFoundException($"Specialty with id {id} not found.");
+                throw new KeyNotFoundException($"Спеціальність з таким id ({id}) не знайдено.");
+
             }
 
             specialty.Name = dto.Name;
@@ -78,9 +80,10 @@ namespace Business_logic.Services.Implementation
             
             if (specialty == null)
             {
-                throw new KeyNotFoundException($"Specialty with id {id} not found.");
+                throw new KeyNotFoundException($"Спеціальність з таким id ({id}) не знайдено.");
+
             }
-            
+
             await repository.DeleteAsync(specialty);
             await repository.SaveAsync();
         }

@@ -42,6 +42,14 @@ namespace Database.Generic_Repository
             return await query.Include(r => r.Patient).Include(r => r.Doctor).ToListAsync();
         }
 
+        public async Task<IEnumerable<Record>> GetAllWithDetailsAsync()
+        {
+            return await databaseSet
+                .Include(r => r.Patient)
+                .Include(r => r.Doctor)
+                .ToListAsync();
+        }
+
         public async Task<Record> GetWithDetailsAsync(int id)
         {
             return await databaseSet.Where(r => r.Id == id).Include(r => r.Patient).Include(r => r.Doctor).Include(r => r.Prescriptions).FirstOrDefaultAsync();

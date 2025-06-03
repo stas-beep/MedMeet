@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Business_logic.Data_Transfer_Object.For_Cabinets;
+using Business_logic.Data_Transfer_Object.For_Pagination;
 using Business_logic.Services.Interfaces;
 using Database.Generic_Repository.Interfaces;
 using Database.Models;
@@ -40,11 +41,7 @@ namespace Business_logic.Services.Implementation
         {
             var cabinets = await repository.GetByNameAsync(name);
 
-            return cabinets.Select(cabinet => new CabinetReadDto
-            {
-                Id = cabinet.Id,
-                Name = cabinet.Name
-            });
+            return cabinets.Select(cabinet => new CabinetReadDto { Id = cabinet.Id, Name = cabinet.Name });
         }
 
         public async Task<CabinetReadDto> CreateAsync(CabinetCreateDto dto)
@@ -53,11 +50,7 @@ namespace Business_logic.Services.Implementation
             await repository.AddAsync(cabinet);
             await repository.SaveAsync();
 
-            return new CabinetReadDto
-            {
-                Id = cabinet.Id,
-                Name = cabinet.Name
-            };
+            return new CabinetReadDto { Id = cabinet.Id, Name = cabinet.Name };
         }
 
         public async Task<CabinetReadDto> UpdateAsync(int id, CabinetUpdateDto dto)
@@ -65,7 +58,7 @@ namespace Business_logic.Services.Implementation
             var cabinet = await repository.GetByIdAsync(id);
             if (cabinet == null)
             {
-                throw new Exception($"Cabinet with id {id} not found");
+                throw new KeyNotFoundException($"Кабінет з таким id ({id}) не знайдено");
             }
 
             cabinet.Name = dto.Name;
@@ -83,7 +76,7 @@ namespace Business_logic.Services.Implementation
             var cabinet = await repository.GetByIdAsync(id);
             if (cabinet == null)
             {
-                throw new KeyNotFoundException($"Cabinet with id {id} not found");
+                throw new KeyNotFoundException($"Кабінет з таким id ({id}) не знайдено");
             }
 
             await repository.DeleteAsync(cabinet);

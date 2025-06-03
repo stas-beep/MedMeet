@@ -11,6 +11,8 @@ class Program
 {
     static void Main(string[] args)
     {
+        Console.OutputEncoding = System.Text.Encoding.UTF8;
+        Console.InputEncoding = System.Text.Encoding.UTF8;
         string connectionString = "server=localhost;port=3306;database=medmeetdb;user=root;password=root";
 
         var options = new DbContextOptionsBuilder<MedMeetDbContext>()
@@ -18,7 +20,7 @@ class Program
             .Options;
         using var context = new MedMeetDbContext(options);
 
-        Console.WriteLine("Starting seeding database ....");
+        Console.WriteLine("Починаємо заповнювати базу даних тестовими даними ....");
 
         List<Cabinet> cabinets = SeedCabinets(context);
         List<Specialty> specialties = SeedSpecialties(context);
@@ -26,18 +28,18 @@ class Program
         List<Record> records = SeedRecords(context, users);
         List<Prescription> prescriptions = SeedPrescriptions(context, records);
 
-        Console.WriteLine("Seeding finished.");
+        Console.WriteLine("Заповнення завершилось.");
     }
 
     static List<Cabinet> SeedCabinets(MedMeetDbContext context)
     {
         if (context.Cabinets.Any())
         {
-            Console.WriteLine("Cabinets already seeded. Loading from DB.");
+            Console.WriteLine("Кабінети уже містять певні дані.Завантажуємо...");
             return context.Cabinets.ToList();
         }
 
-        Console.WriteLine("Seeding Cabinets...");
+        Console.WriteLine("Заповнюємо кабінети...");
         List<Cabinet> cabinet = new List<Cabinet>();
         for (int i = 1; i <= 20; i++)
         {
@@ -57,7 +59,7 @@ class Program
     {
         if (context.Specialties.Any())
         {
-            Console.WriteLine("Specialties already seeded. Loading from DB.");
+            Console.WriteLine("Спеціальності вже існують в базі даних. Завантажуємо...");
             return context.Specialties.ToList();
         }
 
@@ -86,11 +88,11 @@ class Program
     {
         if (context.Users.Any())
         {
-            Console.WriteLine("Users already seeded. Loading from DB.");
+            Console.WriteLine("Користувачі уже є в базі даних.Завантажуємо..");
             return context.Users.Include(u => u.Cabinet).Include(u => u.Specialty).ToList();
         }
 
-        Console.WriteLine("Seeding Users...");
+        Console.WriteLine("Заповнюємо користувачами...");
 
         var faker = new Faker();
         List<User> users = new List<User>();
@@ -133,11 +135,11 @@ class Program
     {
         if (context.Records.Any())
         {
-            Console.WriteLine("Records already seeded. Loading from DB.");
+            Console.WriteLine("Записи уже існують в базі даних. Завантажуємо...");
             return context.Records.ToList();
         }
 
-        Console.WriteLine("Seeding Records...");
+        Console.WriteLine("Заповнюємо записами...");
         List<Record> list = new List<Record>();
         var patients = users.Where(u => u.Role == "Patient").ToList();
         var doctors = users.Where(u => u.Role == "Doctor").ToList();
@@ -166,11 +168,11 @@ class Program
     {
         if (context.Prescriptions.Any())
         {
-            Console.WriteLine("Prescriptions already seeded. Loading from DB.");
+            Console.WriteLine("Призначення уже є в базі даних. Завантажуємо ...");
             return context.Prescriptions.ToList();
         }
 
-        Console.WriteLine("Seeding Prescriptions...");
+        Console.WriteLine("Заповнюємо призначеннями...");
         List<Prescription> list = new List<Prescription>();
         var faker = new Faker();
 
