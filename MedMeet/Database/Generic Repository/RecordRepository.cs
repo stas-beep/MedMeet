@@ -44,10 +44,7 @@ namespace Database.Generic_Repository
 
         public async Task<IEnumerable<Record>> GetAllWithDetailsAsync()
         {
-            return await databaseSet
-                .Include(r => r.Patient)
-                .Include(r => r.Doctor)
-                .ToListAsync();
+            return await databaseSet.Include(r => r.Patient).Include(r => r.Doctor).ToListAsync();
         }
 
         public async Task<Record> GetWithDetailsAsync(int id)

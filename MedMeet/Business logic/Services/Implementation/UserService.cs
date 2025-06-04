@@ -5,6 +5,7 @@ using Business_logic.Sorting;
 using Database.Generic_Repository.Interfaces;
 using Database.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Business_logic.Services.Implementation
 {
@@ -184,76 +185,57 @@ namespace Business_logic.Services.Implementation
             return res;
         }
 
-        public async Task<UserReadDto> UpdateAsync(int id, UserUpdateDto dto)
+        public async Task<UserReadDto> UpdateAsync(int id, UserUpdateDto dto, string currentUserId, string currentUserRole)
         {
-            User user = await userManager.FindByIdAsync(id.ToString());
+            User user = await repository.GetByIdAsync(id);
+
             if (user == null)
             {
-                throw new KeyNotFoundException($"Користувач з таким id ({id}) не знайдено.");
+                throw new KeyNotFoundException($"Користувача з id={id} не знайдено.");
             }
 
-            user.FullName = dto.FullName;
-            user.Email = dto.Email;
-            user.UserName = dto.Email;
-            user.SpecialtyId = dto.SpecialtyId;
-            user.CabinetId = dto.CabinetId;
-
-            var updateResult = await userManager.UpdateAsync(user);
-            await repository.SaveAsync();
-            if (!updateResult.Succeeded)
+            if (currentUserRole != "Admin" && user.Id.ToString() != currentUserId)
             {
-                throw new Exception(string.Join("; ", updateResult.Errors.Select(e => e.Description)));
+                throw new UnauthorizedAccessException("Немає прав оновлювати цього користувача.");
             }
 
-            if (!string.IsNullOrEmpty(dto.Password))
-            {
-                if (string.IsNullOrEmpty(dto.OldPassword))
-                {
-                    throw new Exception("Потрібно вказати старий пароль для оновлення.");
-                }
+            user.FullName = dto.FullName ?? user.FullName;
+            user.Email = dto.Email ?? user.Email;
+            user.UserName = dto.Email ?? user.UserName;
+            user.SpecialtyId = dto.SpecialtyId ?? user.SpecialtyId;
+            user.CabinetId = dto.CabinetId ?? user.CabinetId;
 
-                var changePasswordResult = await userManager.ChangePasswordAsync(user, dto.OldPassword, dto.Password);
-
-                if (!changePasswordResult.Succeeded)
-                {
-                    throw new Exception("Старий пароль некоректний або пароль не вдалося змінити.");
-                }
-            }
-
-            if (!string.IsNullOrEmpty(dto.Role))
+            if (currentUserRole == "Admin" && !string.IsNullOrEmpty(dto.Role))
             {
                 var currentRoles = await userManager.GetRolesAsync(user);
-
                 if (!currentRoles.Contains(dto.Role))
                 {
                     var removeResult = await userManager.RemoveFromRolesAsync(user, currentRoles);
                     if (!removeResult.Succeeded)
                     {
-                        throw new Exception("Щось пішло не так....");
+                        throw new Exception("Не вдалося видалити старі ролі.");
                     }
 
                     var addResult = await userManager.AddToRoleAsync(user, dto.Role);
                     if (!addResult.Succeeded)
                     {
-                        throw new Exception("Щось пішло не так....");
+                        throw new Exception("Не вдалося додати нову роль.");
                     }
                 }
             }
 
-            var rolesAfterUpdate = await userManager.GetRolesAsync(user);
-            string role = "";
-            if (rolesAfterUpdate.Any())
+            var updateResult = await userManager.UpdateAsync(user);
+            if (!updateResult.Succeeded)
             {
-                role = rolesAfterUpdate.FirstOrDefault();
-            }
-            else
-            {
-                role = "Unknow role";
+                throw new Exception("Не вдалося оновити користувача.");
             }
 
             await repository.SaveAsync();
-            UserReadDto res = new UserReadDto { Id = user.Id, FullName = user.FullName, Email = user.Email, Role = role, SpecialtyId = user.SpecialtyId, CabinetId = user.CabinetId };
-            return res;
+
+            var roles = await userManager.GetRolesAsync(user);
+            var role = roles.FirstOrDefault() ?? "Unknown role";
+
+            return new UserReadDto { Id = user.Id, FullName = user.FullName, Email = user.Email, Role = role, SpecialtyId = user.SpecialtyId, CabinetId = user.CabinetId };
         }
 
         public async Task<IEnumerable<UserReadDto>> GetPagedAsync(SortingParameters parameters)

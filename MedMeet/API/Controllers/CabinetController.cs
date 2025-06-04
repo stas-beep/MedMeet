@@ -2,12 +2,14 @@
 using Business_logic.Data_Transfer_Object.For_Pagination;
 using Business_logic.Services.Interfaces;
 using Database.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
     [ApiController]
-    [Route("api/cabinet")]
+    [Route("api/[controller]")]
+    [Authorize]
     public class CabinetController : ControllerBase
     {
         private ICabinetService _cabinetService;
@@ -20,9 +22,17 @@ namespace API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var cabinets = await _cabinetService.GetAllAsync();
-            return Ok(cabinets);
+            try
+            {
+                var cabinets = await _cabinetService.GetAllAsync();
+                return Ok(cabinets);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error");
+            }
         }
+
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
@@ -47,14 +57,15 @@ namespace API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody] CabinetCreateDto dto)
         {
             var createdCabinet = await _cabinetService.CreateAsync(dto);
             return CreatedAtAction(nameof(GetById), new { id = createdCabinet.Id }, createdCabinet);
         }
 
-
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(int id, [FromBody] CabinetUpdateDto dto)
         {
             if (!ModelState.IsValid)
@@ -73,6 +84,7 @@ namespace API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             try

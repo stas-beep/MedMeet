@@ -23,6 +23,7 @@ namespace Database
         public DbSet<Prescription> Prescriptions { get; set; }
         public DbSet<Specialty> Specialties { get; set; }
         public DbSet<Record> Records { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

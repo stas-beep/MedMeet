@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Database.Migrations
 {
     [DbContext(typeof(MedMeetDbContext))]
-    [Migration("20250603153714_InitialCreatingDB")]
-    partial class InitialCreatingDB
+    [Migration("20250604145116_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -101,6 +101,45 @@ namespace Database.Migrations
                     b.HasIndex("PatientId");
 
                     b.ToTable("Records");
+                });
+
+            modelBuilder.Entity("Database.Models.RefreshToken", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("CreatedByIp")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("Expires")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("ReplacedByToken")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime?>("Revoked")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("RevokedByIp")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RefreshTokens");
                 });
 
             modelBuilder.Entity("Database.Models.Specialty", b =>
@@ -356,6 +395,17 @@ namespace Database.Migrations
                     b.Navigation("Patient");
                 });
 
+            modelBuilder.Entity("Database.Models.RefreshToken", b =>
+                {
+                    b.HasOne("Database.Models.User", "User")
+                        .WithMany("RefreshTokens")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Database.Models.User", b =>
                 {
                     b.HasOne("Database.Models.Cabinet", "Cabinet")
@@ -444,6 +494,8 @@ namespace Database.Migrations
                     b.Navigation("RecordAsDoctor");
 
                     b.Navigation("RecordAsPatient");
+
+                    b.Navigation("RefreshTokens");
                 });
 #pragma warning restore 612, 618
         }

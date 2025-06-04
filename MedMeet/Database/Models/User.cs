@@ -18,5 +18,6 @@ namespace Database.Models
 
         public ICollection<Record> RecordAsPatient { get; set; }
         public ICollection<Record> RecordAsDoctor { get; set; }
+        public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
     }
 }

@@ -3,22 +3,30 @@ using Business_logic.Data_Transfer_Object.For_Record;
 using Business_logic.Filters;
 using Business_logic.Services.Interfaces;
 using Business_logic.Sorting;
+using Database.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
     [ApiController]
     [Route("api/records")]
+    [Authorize]
     public class RecordsController: ControllerBase
     {
         private readonly IRecordService _recordService;
+        private readonly UserManager<User> _userManager;
 
-        public RecordsController(IRecordService recordService)
+        public RecordsController(IRecordService recordService, UserManager<User> userManager)
         {
             _recordService = recordService;
+            _userManager = userManager;
         }
 
+
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<IEnumerable<RecordReadDto>>> GetAll()
         {
             var records = await _recordService.GetAllAsync();
@@ -38,18 +46,20 @@ namespace API.Controllers
                 return NotFound($"Не можемо знайти запис з таким id ({id}).");
             }
         }
-        
-        [HttpGet("patient/{patientId}")]
-        public async Task<ActionResult<IEnumerable<RecordReadDto>>> GetByPatientId(int patientId)
+
+        [Authorize(Roles = "Patient")]
+        [HttpGet("my")]
+        public async Task<ActionResult<IEnumerable<RecordReadDto>>> GetMyRecordsAsPatient()
         {
-            var records = await _recordService.GetByPatientIdAsync(patientId);
+            var records = await _recordService.GetMyPatientRecordsAsync();
             return Ok(records);
         }
 
-        [HttpGet("doctor/{doctorId}")]
-        public async Task<ActionResult<IEnumerable<RecordReadDto>>> GetByDoctorId(int doctorId)
+        [Authorize(Roles = "Doctor")]
+        [HttpGet("doctor/my")]
+        public async Task<ActionResult<IEnumerable<RecordReadDto>>> GetMyRecordsAsDoctor()
         {
-            var records = await _recordService.GetByDoctorIdAsync(doctorId);
+            var records = await _recordService.GetMyDoctorRecordsAsync();
             return Ok(records);
         }
 
@@ -68,19 +78,47 @@ namespace API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Patient")]
         public async Task<ActionResult<RecordReadDto>> Create([FromBody] RecordCreateDto dto)
         {
-            var createdRecord = await _recordService.CreateAsync(dto);
+            var userIdStr = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userIdStr) || !int.TryParse(userIdStr, out var userId))
+            {
+                return Unauthorized("Не вдалося визначити ID користувача");
+            }
+
+            var createdRecord = await _recordService.CreateAsync(dto, userId);
             return CreatedAtAction(nameof(GetById), new { id = createdRecord.Id }, createdRecord);
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Doctor,Admin")]
         public async Task<ActionResult<RecordReadDto>> Update(int id, [FromBody] RecordUpdateDto dto)
         {
             try
             {
-                var updatedRecord = await _recordService.UpdateAsync(id, dto);
-                return Ok(updatedRecord);
+                var userIdStr = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                var role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+
+                if (!int.TryParse(userIdStr, out var userId))
+                {
+                    return Unauthorized("Невалідний ідентифікатор користувача");
+                }
+
+                var record = await _recordService.GetByIdAsync(id);
+                if (record == null)
+                {
+                    return NotFound($"Не можемо знайти запис з таким id ({id}).");
+                }
+
+                if (role == "Doctor" && record.DoctorId != userId)
+                {
+                    return Forbid();
+                }
+
+                var updated = await _recordService.UpdateAsync(id, dto);
+                return Ok(updated);
             }
             catch (KeyNotFoundException)
             {
@@ -88,20 +126,41 @@ namespace API.Controllers
             }
         }
 
+
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Doctor,Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             try
             {
+                var userIdStr = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                var role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+
+                if (!int.TryParse(userIdStr, out var userId))
+                {
+                    return Unauthorized("Невалідний ідентифікатор користувача");
+                }
+
+                var record = await _recordService.GetByIdAsync(id);
+                if (record == null)
+                {
+                    return NotFound($"Не можемо знайти запис з таким id ({id}).");
+                }
+
+                if (role == "Doctor" && record.DoctorId != userId)
+                {
+                    return Forbid();
+                }
+
                 await _recordService.DeleteAsync(id);
                 return NoContent();
             }
             catch (KeyNotFoundException)
             {
                 return NotFound($"Не можемо знайти запис з таким id ({id}).");
-
             }
         }
+
 
         [HttpGet("paged")]
         public async Task<ActionResult<IEnumerable<RecordReadDto>>> GetPaged([FromQuery] SortingParameters parameters)

@@ -15,11 +15,11 @@ namespace Business_logic.Services.Interfaces
     {
         Task<IEnumerable<RecordReadDto>> GetAllAsync();
         Task<RecordReadDto> GetByIdAsync(int id);
-        Task<IEnumerable<RecordReadDto>> GetByPatientIdAsync(int patientId);
-        Task<IEnumerable<RecordReadDto>> GetByDoctorIdAsync(int doctorId);
+        Task<IEnumerable<RecordReadDto>> GetMyPatientRecordsAsync();
+        Task<IEnumerable<RecordReadDto>> GetMyDoctorRecordsAsync();
         Task<IEnumerable<RecordReadDto>> GetByStatusAsync(string status);
         Task<IEnumerable<RecordReadDto>> GetUpcomingAsync(DateTime from, DateTime? to = null);
-        Task<RecordReadDto> CreateAsync(RecordCreateDto dto);
+        Task<RecordReadDto> CreateAsync(RecordCreateDto dto, int patientId);
         Task<RecordReadDto> UpdateAsync(int id, RecordUpdateDto dto);
         Task DeleteAsync(int id);
         Task<IEnumerable<RecordReadDto>> GetFilteredAsync(RecordFilterDto filter);

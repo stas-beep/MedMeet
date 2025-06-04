@@ -1,6 +1,7 @@
 ﻿using Business_logic.Data_Transfer_Object.For_Pagination;
 using Business_logic.Data_Transfer_Object.For_Speciality;
 using Business_logic.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -17,6 +18,7 @@ namespace API.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<List<SpecialtyReadDto>>> GetAll()
         {
             var specialties = await _specialtyService.GetAllAsync();
@@ -24,6 +26,7 @@ namespace API.Controllers
         }
 
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<ActionResult<SpecialtyReadDto>> GetById(int id)
         {
             try
@@ -38,6 +41,7 @@ namespace API.Controllers
         }
 
         [HttpGet("search")]
+        [AllowAnonymous] 
         public async Task<ActionResult<IEnumerable<SpecialtyReadDto>>> SearchByName([FromQuery] string name)
         {
             var specialties = await _specialtyService.SearchByNameAsync(name);
@@ -45,6 +49,7 @@ namespace API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<SpecialtyReadDto>> Create([FromBody] SpecialtyCreateDto dto)
         {
             var created = await _specialtyService.CreateAsync(dto);
@@ -52,6 +57,7 @@ namespace API.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<SpecialtyReadDto>> Update(int id, [FromBody] SpecialtyUpdateDto dto)
         {
             try
@@ -67,6 +73,7 @@ namespace API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             try

@@ -10,7 +10,6 @@ namespace Business_logic.Data_Transfer_Object.For_Record
     {
         public int Id { get; set; }
         public int PatientId { get; set; }
-        public string PatientName { get; set; }
         public int DoctorId { get; set; }
         public string DoctorName { get; set; }
         public DateTime AppointmentDate { get; set; }

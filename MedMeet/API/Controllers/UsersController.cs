@@ -1,9 +1,11 @@
-﻿using Business_logic.Data_Transfer_Object.For_Pagination;
+﻿using System.Security.Claims;
+using Business_logic.Data_Transfer_Object.For_Pagination;
 using Business_logic.Data_Transfer_Object.For_Users;
 using Business_logic.Filters;
 using Business_logic.Services.Implementation;
 using Business_logic.Services.Interfaces;
 using Business_logic.Sorting;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -20,6 +22,7 @@ namespace API.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")] 
         public async Task<ActionResult<IEnumerable<UserReadDto>>> GetAll()
         {
             var users = await _userService.GetAllAsync();
@@ -27,6 +30,7 @@ namespace API.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<ActionResult<UserReadDto>> GetById(int id)
         {
             try
@@ -41,6 +45,7 @@ namespace API.Controllers
         }
 
         [HttpGet("doctors")]
+        [Authorize]
         public async Task<ActionResult<List<UserReadDto>>> GetDoctors()
         {
             var doctors = await _userService.GetDoctorsAsync();
@@ -48,6 +53,7 @@ namespace API.Controllers
         }
 
         [HttpGet("patients")]
+        [Authorize]
         public async Task<ActionResult<List<UserReadDto>>> GetPatients()
         {
             var patients = await _userService.GetPatientsAsync();
@@ -55,6 +61,7 @@ namespace API.Controllers
         }
 
         [HttpGet("email/{email}")]
+        [Authorize]
         public async Task<ActionResult<UserReadDto>> GetByEmail(string email)
         {
             try
@@ -69,6 +76,7 @@ namespace API.Controllers
         }
 
         [HttpGet("search")]
+        [Authorize]
         public async Task<ActionResult<List<UserReadDto>>> SearchByName([FromQuery] string name)
         {
             var users = await _userService.SearchByNameAsync(name);
@@ -76,6 +84,7 @@ namespace API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")] 
         public async Task<ActionResult<UserReadDto>> Create([FromBody] UserCreateDto dto)
         {
             var createdUser = await _userService.CreateAsync(dto);
@@ -83,12 +92,19 @@ namespace API.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize]
         public async Task<ActionResult<UserReadDto>> Update(int id, [FromBody] UserUpdateDto dto)
         {
             try
             {
-                var updated = await _userService.UpdateAsync(id, dto);
+                var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+                var updated = await _userService.UpdateAsync(id, dto, currentUserId, currentUserRole);
                 return Ok(updated);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid("Ви не маєте прав оновлювати цього користувача.");
             }
             catch (KeyNotFoundException)
             {
@@ -96,7 +112,9 @@ namespace API.Controllers
             }
         }
 
+
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             try
@@ -111,6 +129,7 @@ namespace API.Controllers
         }
 
         [HttpGet("paged")]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<UserReadDto>>> GetPaged([FromQuery] SortingParameters parameters)
         {
             var pagedUsers = await _userService.GetPagedAsync(parameters);
@@ -118,6 +137,7 @@ namespace API.Controllers
         }
 
         [HttpGet("filter")]
+        [Authorize]
         public async Task<IActionResult> GetFiltered([FromQuery] UserFilterDto filter)
         {
             var records = await _userService.GetFilteredAsync(filter);

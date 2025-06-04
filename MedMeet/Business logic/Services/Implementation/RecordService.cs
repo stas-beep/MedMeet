@@ -1,24 +1,52 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Business_logic.Data_Transfer_Object.For_Pagination;
 using Business_logic.Data_Transfer_Object.For_Record;
 using Business_logic.Filters;
 using Business_logic.Services.Interfaces;
 using Business_logic.Sorting;
+using Database.Generic_Repository;
 using Database.Generic_Repository.Interfaces;
 using Database.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Business_logic.Services.Implementation
 {
     public class RecordService : IRecordService
     {
         private IRecordRepository repository;
+        private IHttpContextAccessor _httpContextAccessor;
+        private UserManager<User> userManager;
+        private IUserRepository userRepository;
+
+        public RecordService(IRecordRepository recordRepository, IHttpContextAccessor httpContextAccessor, UserManager<User> userManager, IUserRepository userRepository)
+        {
+            repository = recordRepository;
+            _httpContextAccessor = httpContextAccessor;
+            this.userManager = userManager;
+            this.userRepository = userRepository;
+        }
+
 
         public RecordService(IRecordRepository recordRepository)
         {
             repository = recordRepository;
+        }
+
+        private int GetCurrentUserId()
+        {
+            var userIdString = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (int.TryParse(userIdString, out var userId))
+            {
+                return userId;
+            }
+
+            throw new UnauthorizedAccessException("Користувач не автентифікований.");
         }
 
         public async Task<IEnumerable<RecordReadDto>> GetAllAsync()
@@ -28,7 +56,6 @@ namespace Business_logic.Services.Implementation
             {
                 Id = p.Id,
                 PatientId = p.PatientId,
-                PatientName = p.Patient.FullName,
                 DoctorId = p.DoctorId,
                 DoctorName = p.Doctor.FullName,
                 AppointmentDate = p.AppointmentDate,
@@ -45,37 +72,41 @@ namespace Business_logic.Services.Implementation
                 throw new KeyNotFoundException($"Запис з таким id ({id}) не знайдено.");
             }
 
-            RecordReadDto result = new RecordReadDto { Id = record.Id, PatientId = record.PatientId, PatientName = record.Patient.FullName, DoctorId = record.DoctorId, DoctorName = record.Doctor.FullName, AppointmentDate = record.AppointmentDate, Status = record.Status, Notes = record.Notes };
+            RecordReadDto result = new RecordReadDto { Id = record.Id, PatientId = record.PatientId, DoctorId = record.DoctorId, DoctorName = record.Doctor.FullName, AppointmentDate = record.AppointmentDate, Status = record.Status, Notes = record.Notes };
 
             return result;
         }
 
-        public async Task<IEnumerable<RecordReadDto>> GetByPatientIdAsync(int patientId)
+        public async Task<IEnumerable<RecordReadDto>> GetMyPatientRecordsAsync()
         {
-            var records = await repository.GetByPatientIdAsync(patientId);
+            int currentUserId = GetCurrentUserId();
+
+            var records = await repository.GetByPatientIdAsync(currentUserId);
+
             return records.Select(p => new RecordReadDto
             {
                 Id = p.Id,
                 PatientId = p.PatientId,
-                PatientName = p.Patient.FullName,
                 DoctorId = p.DoctorId,
-                DoctorName = p.Doctor.FullName,
+                DoctorName = p.Doctor?.FullName,
                 AppointmentDate = p.AppointmentDate,
                 Status = p.Status,
                 Notes = p.Notes,
             }).ToList();
         }
 
-        public async Task<IEnumerable<RecordReadDto>> GetByDoctorIdAsync(int doctorId)
+        public async Task<IEnumerable<RecordReadDto>> GetMyDoctorRecordsAsync()
         {
-            var records = await repository.GetByDoctorIdAsync(doctorId);
+            int currentUserId = GetCurrentUserId();
+
+            var records = await repository.GetByDoctorIdAsync(currentUserId);
+
             return records.Select(p => new RecordReadDto
             {
                 Id = p.Id,
                 PatientId = p.PatientId,
-                PatientName = p.Patient.FullName,
                 DoctorId = p.DoctorId,
-                DoctorName = p.Doctor.FullName,
+                DoctorName = p.Doctor?.FullName,
                 AppointmentDate = p.AppointmentDate,
                 Status = p.Status,
                 Notes = p.Notes,
@@ -89,7 +120,6 @@ namespace Business_logic.Services.Implementation
             {
                 Id = p.Id,
                 PatientId = p.PatientId,
-                PatientName = p.Patient.FullName,
                 DoctorId = p.DoctorId,
                 DoctorName = p.Doctor.FullName,
                 AppointmentDate = p.AppointmentDate,
@@ -138,7 +168,6 @@ namespace Business_logic.Services.Implementation
             {
                 Id = p.Id,
                 PatientId = p.PatientId,
-                PatientName = p.Patient.FullName,
                 DoctorId = p.DoctorId,
                 DoctorName = p.Doctor.FullName,
                 AppointmentDate = p.AppointmentDate,
@@ -147,18 +176,41 @@ namespace Business_logic.Services.Implementation
             }).ToList();
         }
 
-        public async Task<RecordReadDto> CreateAsync(RecordCreateDto dto)
+        public async Task<RecordReadDto> CreateAsync(RecordCreateDto dto, int patientId)
         {
-            Record record = new Record { PatientId = dto.PatientId, DoctorId = dto.DoctorId, AppointmentDate = dto.AppointmentDate, Status = dto.Status, Notes = dto.Notes };
+            var record = new Record
+            {
+                PatientId = patientId,
+                DoctorId = dto.DoctorId,
+                AppointmentDate = dto.AppointmentDate,
+                Status = dto.Status,
+                Notes = dto.Notes
+            };
 
             await repository.AddAsync(record);
             await repository.SaveAsync();
 
-            var saved = await repository.GetWithDetailsAsync(record.Id);
-            RecordReadDto result = new RecordReadDto { Id = record.Id, PatientId = record.PatientId, PatientName = record.Patient.FullName, DoctorId = record.DoctorId, DoctorName = record.Doctor.FullName, AppointmentDate = record.AppointmentDate, Status = record.Status, Notes = record.Notes };
+            var patientName = await GetUserFullNameById(patientId);
+            var doctorName = await GetUserFullNameById(dto.DoctorId);
 
-            return result;
+            return new RecordReadDto
+            {
+                Id = record.Id,
+                PatientId = patientId,
+                DoctorId = dto.DoctorId,
+                DoctorName = doctorName ?? "Невідомо",
+                AppointmentDate = record.AppointmentDate,
+                Status = record.Status,
+                Notes = record.Notes
+            };
         }
+
+        private async Task<string?> GetUserFullNameById(int userId)
+        {
+            var user = await userRepository.GetByIdAsync(userId);
+            return user?.UserName;
+        }
+
 
         public async Task<RecordReadDto> UpdateAsync(int id, RecordUpdateDto dto)
         {
@@ -176,7 +228,7 @@ namespace Business_logic.Services.Implementation
             await repository.SaveAsync();
 
             var updated = await repository.GetWithDetailsAsync(record.Id);
-            RecordReadDto result = new RecordReadDto { Id = record.Id, PatientId = record.PatientId, PatientName = record.Patient.FullName, DoctorId = record.DoctorId, DoctorName = record.Doctor.FullName, AppointmentDate = record.AppointmentDate, Status = record.Status, Notes = record.Notes };
+            RecordReadDto result = new RecordReadDto { Id = record.Id, PatientId = record.PatientId, DoctorId = record.DoctorId, DoctorName = record.Doctor.FullName, AppointmentDate = record.AppointmentDate, Status = record.Status, Notes = record.Notes };
 
             return result;
         }
@@ -282,7 +334,6 @@ namespace Business_logic.Services.Implementation
                 {
                     Id = record.Id,
                     PatientId = record.PatientId,
-                    PatientName = record.Patient?.FullName,
                     DoctorId = record.DoctorId,
                     DoctorName = record.Doctor?.FullName,
                     AppointmentDate = record.AppointmentDate,

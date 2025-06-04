@@ -19,7 +19,7 @@ namespace Business_logic.Services.Interfaces
         Task<UserReadDto> GetByEmailAsync(string email);
         Task<IEnumerable<UserReadDto>> SearchByNameAsync(string name);
         Task<UserReadDto> CreateAsync(UserCreateDto dto);
-        Task<UserReadDto> UpdateAsync(int id, UserUpdateDto dto);
+        Task<UserReadDto> UpdateAsync(int id, UserUpdateDto dto, string currentUserId, string currentUserRole);
         Task DeleteAsync(int id);
         Task<IEnumerable<UserReadDto>> GetPagedAsync(SortingParameters parameters);
         Task<IEnumerable<UserReadDto>> GetFilteredAsync(UserFilterDto filter);

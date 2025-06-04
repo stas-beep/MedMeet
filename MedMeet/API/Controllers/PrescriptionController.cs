@@ -4,12 +4,14 @@ using Business_logic.Filters;
 using Business_logic.Services.Interfaces;
 using Business_logic.Sorting;
 using Database.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
     [ApiController]
     [Route("api/prescription")]
+    [Authorize]
     public class PrescriptionController : ControllerBase
     {
         private readonly IPrescriptionService _service;
@@ -55,6 +57,7 @@ namespace API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Doctor")]
         public async Task<ActionResult<PrescriptionReadDto>> Create([FromBody] PrescriptionCreateDto dto)
         {
             var createdPrescription = await _service.CreateAsync(dto);
@@ -62,6 +65,7 @@ namespace API.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Doctor")]
         public async Task<ActionResult<PrescriptionReadDto>> Update(int id, [FromBody] PrescriptionUpdateDto dto)
         {
             try
@@ -76,6 +80,7 @@ namespace API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Doctor")]
         public async Task<IActionResult> Delete(int id)
         {
             try
