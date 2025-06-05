@@ -15,6 +15,17 @@ namespace Database.Generic_Repository
         
         }
 
+        public async Task<bool> ExistsByNameAsync(string name)
+        {
+            return await databaseSet
+                .AnyAsync(s => s.Name.ToLower() == name.ToLower());
+        }
+
+        public async Task<bool> ExistsByNameExceptIdAsync(string name, int excludedId)
+        {
+            return await databaseSet.AnyAsync(s => s.Name.ToLower() == name.ToLower() && s.Id != excludedId);
+        }
+
         public async Task<Specialty> GetWithDoctorsAsync(int id)
         {
             return await databaseSet.Include(s => s.Doctors).FirstOrDefaultAsync(s => s.Id == id);

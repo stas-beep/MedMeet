@@ -10,5 +10,8 @@ namespace Database.Generic_Repository.Interfaces
     public interface ICabinetRepository : IGenericRepository<Cabinet>
     {
         Task<IEnumerable<Cabinet>> GetByNameAsync(string name);
+        Task<bool> ExistsByNameAsync(string name);
+        Task<bool> ExistsByNameExceptIdAsync(string name, int excludedId);
+
     }
 }

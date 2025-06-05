@@ -17,16 +17,12 @@ namespace Database.Generic_Repository
 
         public async Task<IEnumerable<Prescription>> GetByRecordIdAsync(int recordId)
         {
-            return await databaseSet
-                .Where(p => p.RecordId == recordId)
-                .ToListAsync();
+            return await databaseSet.Where(p => p.RecordId == recordId).ToListAsync();
         }
 
         public async Task<IEnumerable<Prescription>> SearchByMedicationAsync(string medication)
         {
-            return await databaseSet
-                .Where(p => p.Medication.Contains(medication))
-                .ToListAsync();
+            return await databaseSet.Where(p => p.Medication.Contains(medication)).ToListAsync();
         }
     }
 }

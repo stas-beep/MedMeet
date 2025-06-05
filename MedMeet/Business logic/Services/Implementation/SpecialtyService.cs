@@ -49,13 +49,17 @@ namespace Business_logic.Services.Implementation
 
         public async Task<SpecialtyReadDto> CreateAsync(SpecialtyCreateDto dto)
         {
+            if (await repository.ExistsByNameAsync(dto.Name))
+            {
+                throw new InvalidOperationException($"Спеціальність з іменем \"{dto.Name}\" вже існує.");
+            }
+
             Specialty specialty = new Specialty { Name = dto.Name };
-            
+
             await repository.AddAsync(specialty);
             await repository.SaveAsync();
 
-            SpecialtyReadDto result = new SpecialtyReadDto { Id = specialty.Id, Name = specialty.Name };
-            return result;
+            return new SpecialtyReadDto { Id = specialty.Id, Name = specialty.Name };
         }
 
         public async Task<SpecialtyReadDto> UpdateAsync(int id, SpecialtyUpdateDto dto)
@@ -67,14 +71,19 @@ namespace Business_logic.Services.Implementation
                 throw new KeyNotFoundException($"Спеціальність з таким id ({id}) не знайдено.");
             }
 
+            if (await repository.ExistsByNameExceptIdAsync(dto.Name, id))
+            {
+                throw new InvalidOperationException($"Спеціальність з іменем \"{dto.Name}\" вже існує.");
+            }
+
             specialty.Name = dto.Name;
 
             await repository.UpdateAsync(specialty);
             await repository.SaveAsync();
 
-            SpecialtyReadDto result = new SpecialtyReadDto { Id = specialty.Id, Name = specialty.Name };
-            return result;
+            return new SpecialtyReadDto { Id = specialty.Id, Name = specialty.Name };
         }
+
 
         public async Task DeleteAsync(int id)
         {

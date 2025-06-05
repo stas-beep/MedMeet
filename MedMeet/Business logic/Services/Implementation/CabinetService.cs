@@ -48,13 +48,16 @@ namespace Business_logic.Services.Implementation
 
         public async Task<CabinetReadDto> CreateAsync(CabinetCreateDto dto)
         {
+            if (await repository.ExistsByNameAsync(dto.Name))
+            {
+                throw new InvalidOperationException($"Кабінет з ім'ям \"{dto.Name}\" вже існує.");
+            }
+
             Cabinet cabinet = new Cabinet { Name = dto.Name };
             await repository.AddAsync(cabinet);
             await repository.SaveAsync();
 
-            CabinetReadDto result = new CabinetReadDto { Id = cabinet.Id, Name = cabinet.Name };
-
-            return result;
+            return new CabinetReadDto { Id = cabinet.Id, Name = cabinet.Name };
         }
 
         public async Task<CabinetReadDto> UpdateAsync(int id, CabinetUpdateDto dto)
@@ -65,14 +68,18 @@ namespace Business_logic.Services.Implementation
                 throw new KeyNotFoundException($"Кабінет з таким id ({id}) не знайдено");
             }
 
+            if (await repository.ExistsByNameExceptIdAsync(dto.Name, id))
+            {
+                throw new InvalidOperationException($"Кабінет з ім'ям \"{dto.Name}\" вже існує.");
+            }
+
             cabinet.Name = dto.Name;
             await repository.UpdateAsync(cabinet);
             await repository.SaveAsync();
 
-            CabinetReadDto result = new CabinetReadDto { Id = cabinet.Id, Name = cabinet.Name };
-
-            return result;
+            return new CabinetReadDto { Id = cabinet.Id, Name = cabinet.Name };
         }
+
 
         public async Task DeleteAsync(int id)
         {

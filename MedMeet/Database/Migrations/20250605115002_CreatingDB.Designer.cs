@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Database.Migrations
 {
     [DbContext(typeof(MedMeetDbContext))]
-    [Migration("20250604145116_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250605115002_CreatingDB")]
+    partial class CreatingDB
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

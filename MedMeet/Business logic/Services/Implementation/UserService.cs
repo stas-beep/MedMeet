@@ -39,15 +39,7 @@ namespace Business_logic.Services.Implementation
                     role = "Unknown role";
                 }
 
-                userDtos.Add(new UserReadDto
-                {
-                    Id = user.Id,
-                    FullName = user.FullName,
-                    Email = user.Email,
-                    Role = role,
-                    SpecialtyId = user.SpecialtyId,
-                    CabinetId = user.CabinetId
-                });
+                userDtos.Add(new UserReadDto { Id = user.Id, FullName = user.FullName, Email = user.Email, Role = role, SpecialtyId = user.SpecialtyId, CabinetId = user.CabinetId });
             }
 
             return userDtos;
@@ -73,15 +65,7 @@ namespace Business_logic.Services.Implementation
                 role = "Unknown role";
             }
 
-            return new UserReadDto
-            {
-                Id = user.Id,
-                FullName = user.FullName,
-                Email = user.Email,
-                Role = role,
-                SpecialtyId = user.SpecialtyId,
-                CabinetId = user.CabinetId
-            };
+            return new UserReadDto { Id = user.Id, FullName = user.FullName, Email = user.Email, Role = role, SpecialtyId = user.SpecialtyId, CabinetId = user.CabinetId };
         }
 
         public async Task<IEnumerable<UserReadDto>> GetDoctorsAsync()
@@ -118,15 +102,7 @@ namespace Business_logic.Services.Implementation
                 role = "Unknow role";
             }
 
-            return new UserReadDto
-            {
-                Id = user.Id,
-                FullName = user.FullName,
-                Email = user.Email,
-                Role = role,
-                CabinetId = user.CabinetId,
-                SpecialtyId = user.SpecialtyId
-            };
+            return new UserReadDto{ Id = user.Id, FullName = user.FullName, Email = user.Email, Role = role, CabinetId = user.CabinetId, SpecialtyId = user.SpecialtyId };
         }
 
         public async Task<IEnumerable<UserReadDto>> SearchByNameAsync(string name)

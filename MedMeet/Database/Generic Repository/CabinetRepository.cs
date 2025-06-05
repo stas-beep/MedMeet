@@ -14,6 +14,17 @@ namespace Database.Generic_Repository
         public CabinetRepository(MedMeetDbContext context) : base(context) {
         
         }
+        public async Task<bool> ExistsByNameAsync(string name)
+        {
+            return await databaseSet.AnyAsync(c => c.Name.ToLower() == name.ToLower());
+        }
+
+        public async Task<bool> ExistsByNameExceptIdAsync(string name, int excludedId)
+        {
+            return await databaseSet
+                .AnyAsync(s => s.Name.ToLower() == name.ToLower() && s.Id != excludedId);
+        }
+
 
         public async Task<IEnumerable<Cabinet>> GetByNameAsync(string name)
         {

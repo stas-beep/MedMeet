@@ -11,5 +11,7 @@ namespace Database.Generic_Repository.Interfaces
     {
         Task<Specialty> GetWithDoctorsAsync(int id);
         Task<IEnumerable<Specialty>> SearchByNameAsync(string name);
+        Task<bool> ExistsByNameAsync(string name);
+        Task<bool> ExistsByNameExceptIdAsync(string name, int excludedId);
     }
 }

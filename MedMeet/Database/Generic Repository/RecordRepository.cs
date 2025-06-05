@@ -15,6 +15,12 @@ namespace Database.Generic_Repository
         
         }
 
+        public async Task<IEnumerable<Record>> GetByCabinetIdAndDateRangeAsync(int cabinetId, DateTime from, DateTime to)
+        {
+            return await databaseSet.Include(r => r.Doctor) .Where(r => r.Doctor.CabinetId == cabinetId && r.AppointmentDate >= from && r.AppointmentDate <= to).ToListAsync();
+        }
+
+
         public async Task<IEnumerable<Record>> GetByPatientIdAsync(int patientId)
         {
             return await databaseSet.Where(r => r.PatientId == patientId).Include(r => r.Doctor).ToListAsync();
