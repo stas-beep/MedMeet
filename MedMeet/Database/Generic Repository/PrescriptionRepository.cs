@@ -15,6 +15,16 @@ namespace Database.Generic_Repository
         
         }
 
+        public async Task<IEnumerable<Prescription>> GetByPatientIdAsync(int patientId)
+        {
+            return await databaseSet.Include(p => p.Record).Where(p => p.Record.PatientId == patientId).ToListAsync();
+        }
+
+        public async Task<IEnumerable<Prescription>> GetByDoctorIdAsync(int doctorId)
+        {
+            return await databaseSet.Include(p => p.Record).Where(p => p.Record.DoctorId == doctorId).ToListAsync();
+        }
+
         public async Task<IEnumerable<Prescription>> GetByRecordIdAsync(int recordId)
         {
             return await databaseSet.Where(p => p.RecordId == recordId).ToListAsync();

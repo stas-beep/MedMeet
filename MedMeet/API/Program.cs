@@ -27,8 +27,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<MedMeetDbContext>(options =>
     options.UseMySql(
         builder.Configuration.GetConnectionString("DefaultConnection"),
-        new MySqlServerVersion(new Version(8, 0, 41)),
-        b => b.MigrationsAssembly("CinemaBookingSystemDAL")), ServiceLifetime.Scoped);
+        new MySqlServerVersion(new Version(8, 0, 42)),
+        b => b.MigrationsAssembly("Database")), ServiceLifetime.Scoped);
 
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssembly(typeof(SpecialtyCreateDtoValidator).Assembly);
@@ -77,7 +77,6 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// ВАЖЛИВО: Identity БЕЗ стандартної authentication схеми
 builder.Services.AddIdentityCore<User>(options =>
 {
     options.Password.RequireDigit = false;
@@ -90,7 +89,6 @@ builder.Services.AddIdentityCore<User>(options =>
 .AddEntityFrameworkStores<MedMeetDbContext>()
 .AddDefaultTokenProviders();
 
-// Тепер JWT Bearer як основна схема
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 .AddJwtBearer(options =>
 {

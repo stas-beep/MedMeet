@@ -11,10 +11,6 @@ namespace Business_logic.Data_Transfer_Object.For_Record
     {
         public RecordCreateDtoValidator()
         {
-            RuleFor(x => x.PatientId)
-                .GreaterThan(0)
-                .WithMessage("Пацієнт є обов’язковим.");
-
             RuleFor(x => x.DoctorId)
                 .GreaterThan(0)
                 .WithMessage("Лікар є обов’язковим.");

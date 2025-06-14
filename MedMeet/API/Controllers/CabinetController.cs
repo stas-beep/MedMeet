@@ -9,14 +9,13 @@ namespace API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
     public class CabinetController : ControllerBase
     {
-        private ICabinetService _cabinetService;
+        private ICabinetService service;
 
         public CabinetController(ICabinetService cabinetService)
         {
-            _cabinetService = cabinetService;
+            service = cabinetService;
         }
 
         [HttpGet]
@@ -24,7 +23,7 @@ namespace API.Controllers
         {
             try
             {
-                var cabinets = await _cabinetService.GetAllAsync();
+                var cabinets = await service.GetAllAsync();
                 return Ok(cabinets);
             }
             catch (Exception ex)
@@ -37,7 +36,7 @@ namespace API.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var cabinet = await _cabinetService.GetByIdAsync(id);
+            CabinetReadDto cabinet = await service.GetByIdAsync(id);
             if (cabinet == null)
             {
                 return NotFound($"Кабінет з таким id ({id}) не знайдений!");
@@ -48,7 +47,7 @@ namespace API.Controllers
         [HttpGet("by-name/{name}")]
         public async Task<IActionResult> GetByName(string name)
         {
-            var cabinet = await _cabinetService.GetByNameAsync(name);
+            var cabinet = await service.GetByNameAsync(name);
             if (!cabinet.Any())
             {
                 return NotFound($"Кабінет з таким іменем ({name}) не знайдений!");
@@ -60,7 +59,7 @@ namespace API.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody] CabinetCreateDto dto)
         {
-            var createdCabinet = await _cabinetService.CreateAsync(dto);
+            CabinetReadDto createdCabinet = await service.CreateAsync(dto);
             return CreatedAtAction(nameof(GetById), new { id = createdCabinet.Id }, createdCabinet);
         }
 
@@ -74,7 +73,7 @@ namespace API.Controllers
             }
             try
             {
-                var updatedCabinet = await _cabinetService.UpdateAsync(id, dto);
+                var updatedCabinet = await service.UpdateAsync(id, dto);
                 return Ok(updatedCabinet);
             }
             catch (Exception ex)
@@ -89,7 +88,7 @@ namespace API.Controllers
         {
             try
             {
-                await _cabinetService.DeleteAsync(id);
+                await service.DeleteAsync(id);
                 return NoContent();
             }
             catch (Exception ex)

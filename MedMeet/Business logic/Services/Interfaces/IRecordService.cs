@@ -13,6 +13,7 @@ namespace Business_logic.Services.Interfaces
 {
     public interface IRecordService
     {
+        Task<RecordReadDto> CancelRecordAsync(int recordId, int patientId);
         Task<IEnumerable<RecordReadDto>> GetAllAsync();
         Task<RecordReadDto> GetByIdAsync(int id);
         Task<IEnumerable<RecordReadDto>> GetMyPatientRecordsAsync();

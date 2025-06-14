@@ -13,6 +13,8 @@ namespace Business_logic.Services.Interfaces
 {
     public interface IPrescriptionService
     {
+        Task<IEnumerable<PrescriptionReadDto>> GetByPatientIdAsync(int patientId);
+        Task<IEnumerable<PrescriptionReadDto>> GetByDoctorIdAsync(int doctorId);
         Task<IEnumerable<PrescriptionReadDto>> GetAllAsync();
         Task<PrescriptionReadDto> GetByIdAsync(int id);
         Task<IEnumerable<PrescriptionReadDto>> GetByRecordIdAsync(int recordId);

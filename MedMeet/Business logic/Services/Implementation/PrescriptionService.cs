@@ -22,13 +22,13 @@ namespace Business_logic.Services.Implementation
 
         public async Task<IEnumerable<PrescriptionReadDto>> GetAllAsync()
         {
-            var prescriptions = await repository.GetAllAsync();
-            return prescriptions.Select(p => new PrescriptionReadDto { Id = p.Id, RecordId = p.RecordId, Medication = p.Medication, Dosage = p.Dosage, Instructions = p.Instructions });
+            var allPrescriptions = await repository.GetAllAsync();
+            return allPrescriptions.Select(p => new PrescriptionReadDto { Id = p.Id, RecordId = p.RecordId, Medication = p.Medication, Dosage = p.Dosage, Instructions = p.Instructions });
         }
 
         public async Task<PrescriptionReadDto> GetByIdAsync(int id)
         {
-            var prescription = await repository.GetByIdAsync(id);
+            Prescription prescription = await repository.GetByIdAsync(id);
             if (prescription == null)
             {
                 throw new KeyNotFoundException($"Призначення з таким {id} не знайдено.");
@@ -40,14 +40,14 @@ namespace Business_logic.Services.Implementation
 
         public async Task<IEnumerable<PrescriptionReadDto>> GetByRecordIdAsync(int recordId)
         {
-            var prescriptions = await repository.GetByRecordIdAsync(recordId);
-            return prescriptions.Select(p => new PrescriptionReadDto { Id = p.Id, RecordId = p.RecordId, Medication = p.Medication, Dosage = p.Dosage, Instructions = p.Instructions });
+            var allPrescriptions = await repository.GetByRecordIdAsync(recordId);
+            return allPrescriptions.Select(p => new PrescriptionReadDto { Id = p.Id, RecordId = p.RecordId, Medication = p.Medication, Dosage = p.Dosage, Instructions = p.Instructions });
         }
 
         public async Task<IEnumerable<PrescriptionReadDto>> SearchByMedicationAsync(string medication)
         {
-            var prescriptions = await repository.SearchByMedicationAsync(medication);
-            return prescriptions.Select(p => new PrescriptionReadDto { Id = p.Id, RecordId = p.RecordId, Medication = p.Medication, Dosage = p.Dosage, Instructions = p.Instructions });
+            var allPrescriptions = await repository.SearchByMedicationAsync(medication);
+            return allPrescriptions.Select(p => new PrescriptionReadDto { Id = p.Id, RecordId = p.RecordId, Medication = p.Medication, Dosage = p.Dosage, Instructions = p.Instructions });
         }
 
         public async Task<PrescriptionReadDto> CreateAsync(PrescriptionCreateDto dto)
@@ -63,7 +63,7 @@ namespace Business_logic.Services.Implementation
 
         public async Task<PrescriptionReadDto> UpdateAsync(int id, PrescriptionUpdateDto dto)
         {
-            var prescription = await repository.GetByIdAsync(id);
+            Prescription prescription = await repository.GetByIdAsync(id);
             if (prescription == null)
             {
                 throw new KeyNotFoundException($"Призначення з таким {id} не знайдено.");
@@ -82,7 +82,7 @@ namespace Business_logic.Services.Implementation
 
         public async Task DeleteAsync(int id)
         {
-            var prescription = await repository.GetByIdAsync(id);
+            Prescription prescription = await repository.GetByIdAsync(id);
             if (prescription == null)
             {
                 throw new KeyNotFoundException($"Призначення з таким {id} не знайдено.");
@@ -95,7 +95,7 @@ namespace Business_logic.Services.Implementation
         public async Task<IEnumerable<PrescriptionReadDto>> GetPagedAsync(SortingParameters parameters)
         {
             var allPrescriptions = await repository.GetAllAsync();
-            var sorted = allPrescriptions.AsQueryable();
+            IQueryable<Prescription> sorted = allPrescriptions.AsQueryable();
 
             if (parameters.SortBy != null)
             {
@@ -176,7 +176,7 @@ namespace Business_logic.Services.Implementation
         public async Task<IEnumerable<PrescriptionReadDto>> GetFilteredAsync(PrescriptionFilterDto filter)
         {
             var allPrescriptions = await repository.GetAllAsync();
-            var filtered = allPrescriptions.AsQueryable();
+            IQueryable<Prescription> filtered = allPrescriptions.AsQueryable();
 
             if (filter.RecordId.HasValue)
             {
@@ -202,16 +202,21 @@ namespace Business_logic.Services.Implementation
             return prescriptions
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
-                .Select(p => new PrescriptionReadDto
-                {
-                    Id = p.Id,
-                    RecordId = p.RecordId,
-                    Medication = p.Medication,
-                    Dosage = p.Dosage,
-                    Instructions = p.Instructions
-                })
+                .Select(p => new PrescriptionReadDto { Id = p.Id, RecordId = p.RecordId, Medication = p.Medication, Dosage = p.Dosage, Instructions = p.Instructions })
                 .ToList();
         }
 
+        public async Task<IEnumerable<PrescriptionReadDto>> GetByPatientIdAsync(int patientId)
+        {
+            var prescriptions = await repository.GetByPatientIdAsync(patientId);
+            return prescriptions.Select(p => new PrescriptionReadDto{ Id = p.Id,RecordId = p.RecordId, Medication = p.Medication, Dosage = p.Dosage, Instructions = p.Instructions }).ToList();
+        }
+
+
+        public async Task<IEnumerable<PrescriptionReadDto>> GetByDoctorIdAsync(int doctorId)
+        {
+            var prescriptions = await repository.GetByDoctorIdAsync(doctorId);
+            return prescriptions.Select(p => new PrescriptionReadDto { Id = p.Id, RecordId = p.RecordId, Medication = p.Medication, Dosage = p.Dosage, Instructions = p.Instructions}).ToList();
+        }
     }
 }

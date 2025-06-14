@@ -23,14 +23,14 @@ namespace Business_logic.Services.Implementation
 
         public async Task<IEnumerable<SpecialtyReadDto>> GetAllAsync()
         {
-            var specialties = await repository.GetAllAsync();
+            var allSpecialties = await repository.GetAllAsync();
             
-            return specialties.Select(s => new SpecialtyReadDto { Id = s.Id, Name = s.Name });
+            return allSpecialties.Select(s => new SpecialtyReadDto { Id = s.Id, Name = s.Name });
         }
 
         public async Task<SpecialtyReadDto> GetByIdAsync(int id)
         {
-            var specialty = await repository.GetWithDoctorsAsync(id);
+            Specialty specialty = await repository.GetWithDoctorsAsync(id);
             if (specialty == null)
             {
                 throw new KeyNotFoundException($"Спеціальність з таким id ({id}) не знайдено.");
@@ -42,16 +42,16 @@ namespace Business_logic.Services.Implementation
 
         public async Task<IEnumerable<SpecialtyReadDto>> SearchByNameAsync(string name)
         {
-            var specialties = await repository.SearchByNameAsync(name);
+            var allSpecialties = await repository.SearchByNameAsync(name);
             
-            return specialties.Select(s => new SpecialtyReadDto { Id = s.Id, Name = s.Name });
+            return allSpecialties.Select(s => new SpecialtyReadDto { Id = s.Id, Name = s.Name });
         }
 
         public async Task<SpecialtyReadDto> CreateAsync(SpecialtyCreateDto dto)
         {
             if (await repository.ExistsByNameAsync(dto.Name))
             {
-                throw new InvalidOperationException($"Спеціальність з іменем \"{dto.Name}\" вже існує.");
+                throw new InvalidOperationException($"Спеціальність з іменем {dto.Name} вже існує.");
             }
 
             Specialty specialty = new Specialty { Name = dto.Name };
@@ -64,7 +64,7 @@ namespace Business_logic.Services.Implementation
 
         public async Task<SpecialtyReadDto> UpdateAsync(int id, SpecialtyUpdateDto dto)
         {
-            var specialty = await repository.GetByIdAsync(id);
+            Specialty specialty = await repository.GetByIdAsync(id);
 
             if (specialty == null)
             {
@@ -73,7 +73,7 @@ namespace Business_logic.Services.Implementation
 
             if (await repository.ExistsByNameExceptIdAsync(dto.Name, id))
             {
-                throw new InvalidOperationException($"Спеціальність з іменем \"{dto.Name}\" вже існує.");
+                throw new InvalidOperationException($"Спеціальність з іменем {dto.Name} вже існує.");
             }
 
             specialty.Name = dto.Name;
@@ -87,7 +87,7 @@ namespace Business_logic.Services.Implementation
 
         public async Task DeleteAsync(int id)
         {
-            var specialty = await repository.GetByIdAsync(id);
+            Specialty specialty = await repository.GetByIdAsync(id);
             
             if (specialty == null)
             {

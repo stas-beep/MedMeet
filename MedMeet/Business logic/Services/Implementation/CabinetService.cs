@@ -22,13 +22,13 @@ namespace Business_logic.Services.Implementation
 
         public async Task<IEnumerable<CabinetReadDto>> GetAllAsync()
         {
-            var cabinets = await repository.GetAllAsync();
-            return cabinets.Select(cabinet => new CabinetReadDto { Id = cabinet.Id, Name = cabinet.Name });
+            var allCabinets = await repository.GetAllAsync();
+            return allCabinets.Select(cabinet => new CabinetReadDto { Id = cabinet.Id, Name = cabinet.Name });
         }
 
         public async Task<CabinetReadDto> GetByIdAsync(int id)
         {
-            var cabinet = await repository.GetByIdAsync(id);
+            Cabinet cabinet = await repository.GetByIdAsync(id);
             if (cabinet == null)
             {
                 return null;
@@ -41,55 +41,55 @@ namespace Business_logic.Services.Implementation
 
         public async Task<IEnumerable<CabinetReadDto>> GetByNameAsync(string name)
         {
-            var cabinets = await repository.GetByNameAsync(name);
+            var allCabinets = await repository.GetByNameAsync(name);
 
-            return cabinets.Select(cabinet => new CabinetReadDto { Id = cabinet.Id, Name = cabinet.Name });
+            return allCabinets.Select(cabinet => new CabinetReadDto { Id = cabinet.Id, Name = cabinet.Name });
         }
 
         public async Task<CabinetReadDto> CreateAsync(CabinetCreateDto dto)
         {
             if (await repository.ExistsByNameAsync(dto.Name))
             {
-                throw new InvalidOperationException($"Кабінет з ім'ям \"{dto.Name}\" вже існує.");
+                throw new InvalidOperationException($"Кабінет з ім'ям {dto.Name} вже існує.");
             }
 
-            Cabinet cabinet = new Cabinet { Name = dto.Name };
-            await repository.AddAsync(cabinet);
+            Cabinet result = new Cabinet { Name = dto.Name };
+            await repository.AddAsync(result);
             await repository.SaveAsync();
 
-            return new CabinetReadDto { Id = cabinet.Id, Name = cabinet.Name };
+            return new CabinetReadDto { Id = result.Id, Name = result.Name };
         }
 
         public async Task<CabinetReadDto> UpdateAsync(int id, CabinetUpdateDto dto)
         {
-            var cabinet = await repository.GetByIdAsync(id);
-            if (cabinet == null)
+            Cabinet result = await repository.GetByIdAsync(id);
+            if (result == null)
             {
                 throw new KeyNotFoundException($"Кабінет з таким id ({id}) не знайдено");
             }
 
             if (await repository.ExistsByNameExceptIdAsync(dto.Name, id))
             {
-                throw new InvalidOperationException($"Кабінет з ім'ям \"{dto.Name}\" вже існує.");
+                throw new InvalidOperationException($"Кабінет з ім'ям {dto.Name} вже існує.");
             }
 
-            cabinet.Name = dto.Name;
-            await repository.UpdateAsync(cabinet);
+            result.Name = dto.Name;
+            await repository.UpdateAsync(result);
             await repository.SaveAsync();
 
-            return new CabinetReadDto { Id = cabinet.Id, Name = cabinet.Name };
+            return new CabinetReadDto { Id = result.Id, Name = result.Name };
         }
 
 
         public async Task DeleteAsync(int id)
         {
-            var cabinet = await repository.GetByIdAsync(id);
-            if (cabinet == null)
+            Cabinet result = await repository.GetByIdAsync(id);
+            if (result == null)
             {
                 throw new KeyNotFoundException($"Кабінет з таким id ({id}) не знайдено");
             }
 
-            await repository.DeleteAsync(cabinet);
+            await repository.DeleteAsync(result);
             await repository.SaveAsync();
         }
     }

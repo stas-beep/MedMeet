@@ -57,8 +57,8 @@ namespace API.Controllers
                 return Unauthorized("Невірна електронна пошта або пароль.");
             }
 
-            var accessToken = await token.GenerateAccessTokenAsync(user);
-            var refreshToken = token.GenerateRefreshToken();
+            string accessToken = await token.GenerateAccessTokenAsync(user);
+            string refreshToken = token.GenerateRefreshToken();
 
             var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
 
@@ -81,7 +81,7 @@ namespace API.Controllers
         [HttpPost("refresh-token")]
         public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
         {
-            var refreshToken = request.RefreshToken;
+            string refreshToken = request.RefreshToken;
 
             var user = await userManager.Users
                 .Include(u => u.RefreshTokens)
@@ -92,8 +92,8 @@ namespace API.Controllers
                 return Unauthorized("Недійсний або протермінований refresh токен.");
             }
 
-            var newAccessToken = await token.GenerateAccessTokenAsync(user);
-            var newRefreshToken = token.GenerateRefreshToken();
+            string newAccessToken = await token.GenerateAccessTokenAsync(user);
+            string newRefreshToken = token.GenerateRefreshToken();
 
             var oldToken = user.RefreshTokens.FirstOrDefault(rt => rt.Token == refreshToken && rt.Expires > DateTime.UtcNow);
             if (oldToken == null)
@@ -103,7 +103,7 @@ namespace API.Controllers
 
             user.RefreshTokens.Remove(oldToken);
 
-            var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+            string? ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
 
             user.RefreshTokens.Add(new RefreshToken
             {

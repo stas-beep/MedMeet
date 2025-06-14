@@ -10,28 +10,26 @@ namespace API.Controllers
     [Route("api/specialties")]
     public class SpecialtiesController : ControllerBase
     {
-        private readonly ISpecialtyService _specialtyService;
+        private ISpecialtyService specialtyService;
 
         public SpecialtiesController(ISpecialtyService specialtyService)
         {
-            _specialtyService = specialtyService;
+            this.specialtyService = specialtyService;
         }
 
         [HttpGet]
-        [AllowAnonymous]
         public async Task<ActionResult<List<SpecialtyReadDto>>> GetAll()
         {
-            var specialties = await _specialtyService.GetAllAsync();
+            var specialties = await specialtyService.GetAllAsync();
             return Ok(specialties);
         }
 
         [HttpGet("{id}")]
-        [AllowAnonymous]
         public async Task<ActionResult<SpecialtyReadDto>> GetById(int id)
         {
             try
             {
-                var specialty = await _specialtyService.GetByIdAsync(id);
+                SpecialtyReadDto specialty = await specialtyService.GetByIdAsync(id);
                 return Ok(specialty);
             }
             catch (KeyNotFoundException)
@@ -41,10 +39,9 @@ namespace API.Controllers
         }
 
         [HttpGet("search")]
-        [AllowAnonymous] 
         public async Task<ActionResult<IEnumerable<SpecialtyReadDto>>> SearchByName([FromQuery] string name)
         {
-            var specialties = await _specialtyService.SearchByNameAsync(name);
+            var specialties = await specialtyService.SearchByNameAsync(name);
             return Ok(specialties);
         }
 
@@ -52,7 +49,7 @@ namespace API.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<SpecialtyReadDto>> Create([FromBody] SpecialtyCreateDto dto)
         {
-            var created = await _specialtyService.CreateAsync(dto);
+            SpecialtyReadDto created = await specialtyService.CreateAsync(dto);
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
@@ -62,7 +59,7 @@ namespace API.Controllers
         {
             try
             {
-                var updated = await _specialtyService.UpdateAsync(id, dto);
+                SpecialtyReadDto updated = await specialtyService.UpdateAsync(id, dto);
                 return Ok(updated);
             }
             catch (KeyNotFoundException)
@@ -78,7 +75,7 @@ namespace API.Controllers
         {
             try
             {
-                await _specialtyService.DeleteAsync(id);
+                await specialtyService.DeleteAsync(id);
                 return NoContent();
             }
             catch (KeyNotFoundException)

@@ -2,24 +2,24 @@
 {
     public class ErrorHandlingMiddleware
     {
-        private readonly RequestDelegate _next;
-        private readonly ILogger<ErrorHandlingMiddleware> _logger;
+        private readonly RequestDelegate next;
+        private readonly ILogger<ErrorHandlingMiddleware> log;
 
         public ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandlingMiddleware> logger)
         {
-            _next = next;
-            _logger = logger;
+            this.next = next;
+            log = logger;
         }
 
         public async Task InvokeAsync(HttpContext context)
         {
             try
             {
-                await _next(context);
+                await next(context);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Помилка при обробці запиту");
+                log.LogError(ex, "Помилка при обробці запиту");
 
                 context.Response.ContentType = "application/json";
                 context.Response.StatusCode = StatusCodes.Status500InternalServerError;

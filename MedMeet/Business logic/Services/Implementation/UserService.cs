@@ -36,7 +36,7 @@ namespace Business_logic.Services.Implementation
                 }
                 else
                 {
-                    role = "Unknown role";
+                    role = "Невказана роль";
                 }
 
                 userDtos.Add(new UserReadDto { Id = user.Id, FullName = user.FullName, Email = user.Email, Role = role, SpecialtyId = user.SpecialtyId, CabinetId = user.CabinetId });
@@ -47,7 +47,7 @@ namespace Business_logic.Services.Implementation
 
         public async Task<UserReadDto> GetByIdAsync(int id)
         {
-            var user = await repository.GetWithDetailsAsync(id);
+            User user = await repository.GetWithDetailsAsync(id);
 
             if (user == null)
             {
@@ -62,7 +62,7 @@ namespace Business_logic.Services.Implementation
             }
             else
             {
-                role = "Unknown role";
+                role = "Невказана роль";
             }
 
             return new UserReadDto { Id = user.Id, FullName = user.FullName, Email = user.Email, Role = role, SpecialtyId = user.SpecialtyId, CabinetId = user.CabinetId };
@@ -70,21 +70,21 @@ namespace Business_logic.Services.Implementation
 
         public async Task<IEnumerable<UserReadDto>> GetDoctorsAsync()
         {
-            var doctors = await userManager.GetUsersInRoleAsync("Doctor");
+            var allDoctors = await userManager.GetUsersInRoleAsync("Doctor");
 
-            return doctors.Select(u => new UserReadDto { Id = u.Id, FullName = u.FullName, Email = u.Email, Role = "Doctor", SpecialtyId = u.SpecialtyId, CabinetId = u.CabinetId });
+            return allDoctors.Select(u => new UserReadDto { Id = u.Id, FullName = u.FullName, Email = u.Email, Role = "Doctor", SpecialtyId = u.SpecialtyId, CabinetId = u.CabinetId });
         }
 
         public async Task<IEnumerable<UserReadDto>> GetPatientsAsync()
         {
-            var patients = await userManager.GetUsersInRoleAsync("Patient");
+            var allPatients = await userManager.GetUsersInRoleAsync("Patient");
 
-            return patients.Select(u => new UserReadDto { Id = u.Id, FullName = u.FullName, Email = u.Email, Role = "Patient" });
+            return allPatients.Select(u => new UserReadDto { Id = u.Id, FullName = u.FullName, Email = u.Email, Role = "Patient" });
         }
 
         public async Task<UserReadDto> GetByEmailAsync(string email)
         {
-            var user = await repository.GetByEmailAsync(email);
+            User user = await repository.GetByEmailAsync(email);
             if (user == null)
             {
                 throw new KeyNotFoundException($"Користувач з таким email ({email}) не знайдено.");
@@ -99,7 +99,7 @@ namespace Business_logic.Services.Implementation
             }
             else
             {
-                role = "Unknow role";
+                role = "Невказана роль";
             }
 
             return new UserReadDto{ Id = user.Id, FullName = user.FullName, Email = user.Email, Role = role, CabinetId = user.CabinetId, SpecialtyId = user.SpecialtyId };
@@ -120,7 +120,7 @@ namespace Business_logic.Services.Implementation
                 }
                 else
                 {
-                    role = "Unknow role";
+                    role = "Невказана роль";
                 }
 
                 UserReadDto result = new UserReadDto { Id = user.Id, FullName = user.FullName, Email = user.Email, Role = role, SpecialtyId = user.SpecialtyId, CabinetId = user.CabinetId };
@@ -154,7 +154,7 @@ namespace Business_logic.Services.Implementation
             }
             else
             {
-                role = "Unknow role";
+                role = "Невказана роль";
             }
 
             UserReadDto res = new UserReadDto { Id = user.Id, FullName = user.FullName, Email = user.Email, Role = role, SpecialtyId = user.SpecialtyId, CabinetId = user.CabinetId };
@@ -175,13 +175,13 @@ namespace Business_logic.Services.Implementation
                 throw new UnauthorizedAccessException("Немає прав оновлювати цього користувача.");
             }
 
-            user.FullName = dto.FullName ?? user.FullName;
-            user.Email = dto.Email ?? user.Email;
-            user.UserName = dto.Email ?? user.UserName;
-            user.SpecialtyId = dto.SpecialtyId ?? user.SpecialtyId;
-            user.CabinetId = dto.CabinetId ?? user.CabinetId;
+            user.FullName = dto.FullName;
+            user.Email = dto.Email;
+            user.UserName = dto.Email;
+            user.SpecialtyId = dto.SpecialtyId.Value;
+            user.CabinetId = dto.CabinetId.Value;
 
-            if (currentUserRole == "Admin" && !string.IsNullOrEmpty(dto.Role))
+            if (currentUserRole == "Admin")
             {
                 var currentRoles = await userManager.GetRolesAsync(user);
                 if (!currentRoles.Contains(dto.Role))
@@ -209,15 +209,24 @@ namespace Business_logic.Services.Implementation
             await repository.SaveAsync();
 
             var roles = await userManager.GetRolesAsync(user);
-            var role = roles.FirstOrDefault() ?? "Unknown role";
+            var role = roles.FirstOrDefault();
 
-            return new UserReadDto { Id = user.Id, FullName = user.FullName, Email = user.Email, Role = role, SpecialtyId = user.SpecialtyId, CabinetId = user.CabinetId };
+            return new UserReadDto
+            {
+                Id = user.Id,
+                FullName = user.FullName,
+                Email = user.Email,
+                Role = role,
+                SpecialtyId = user.SpecialtyId,
+                CabinetId = user.CabinetId
+            };
         }
+
 
         public async Task<IEnumerable<UserReadDto>> GetPagedAsync(SortingParameters parameters)
         {
             var allUsers = await repository.GetAllAsync();
-            var sorted = allUsers.AsQueryable();
+            IQueryable<User> sorted = allUsers.AsQueryable();
 
             if (parameters.SortBy != null)
             {
@@ -309,7 +318,7 @@ namespace Business_logic.Services.Implementation
         public async Task<IEnumerable<UserReadDto>> GetFilteredAsync(UserFilterDto filter)
         {
             var allUsers = await repository.GetAllAsync();
-            var filtered = allUsers.AsQueryable();
+            IQueryable<User> filtered = allUsers.AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(filter.FullName))
             {
@@ -349,7 +358,7 @@ namespace Business_logic.Services.Implementation
                 }
                 else
                 {
-                    role = "Unknow role";
+                    role = "Невказана роль";
                 }
 
                 UserReadDto newUser = new UserReadDto { Id = user.Id, FullName = user.FullName, Email = user.Email, Role = role, SpecialtyId = user.SpecialtyId, CabinetId = user.CabinetId };

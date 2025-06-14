@@ -9,6 +9,8 @@ namespace Database.Generic_Repository.Interfaces
 {
     public interface IPrescriptionRepository : IGenericRepository<Prescription>
     {
+        Task<IEnumerable<Prescription>> GetByPatientIdAsync(int patientId);
+        Task<IEnumerable<Prescription>> GetByDoctorIdAsync(int doctorId);
         Task<IEnumerable<Prescription>> GetByRecordIdAsync(int recordId);
         Task<IEnumerable<Prescription>> SearchByMedicationAsync(string medication);
     }
