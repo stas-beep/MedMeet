@@ -26,8 +26,8 @@ namespace Business_logic.Data_Transfer_Object.For_Record
                 .WithMessage("Статус є обов'язковим")
                 .MaximumLength(50)
                 .WithMessage("Статус не може перевищувати 50 символів.")
-                .Must(status => new[] { "scheduled", "completed", "cancelled" }.Contains(status.ToLower()))
-                .WithMessage("Статус повинен бути 'Scheduled', 'Completed' або 'Cancelled'.");
+                .Must(status => new[] { "scheduled"}.Contains(status.ToLower()))
+                .WithMessage("Статус повинен бути 'Scheduled'.");
 
             RuleFor(x => x.Notes)
                 .NotEmpty()
