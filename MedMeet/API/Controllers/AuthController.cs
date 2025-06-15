@@ -30,7 +30,7 @@ namespace API.Controllers
                 return BadRequest("Користувач з такою електронною поштою вже існує.");
             }
 
-            User user = new User { UserName = model.UserName, Email = model.Email, FullName = model.UserName, SpecialtyId = model.SpecialtyId, CabinetId = model.CabinetId };
+            User user = new User { UserName = model.UserName, Email = model.Email, FullName = model.UserName, SpecialtyId = null, CabinetId = null};
 
             var result = await userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)
