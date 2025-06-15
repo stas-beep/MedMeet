@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Business_logic.Auth;
 using Business_logic.Data_Transfer_Object.For_Users;
 using FluentValidation;
 
@@ -41,6 +42,14 @@ namespace Business_logic.Rules
                 .WithMessage("Роль не може перевищувати 50 символів.")
                 .Must(role => new[] { "customer", "admin", "doctor" }.Contains(role.ToLower()))
                 .WithMessage("Роль повинна бути 'customer', 'admin' або 'doctor'.");
+
+            RuleFor(x => x.SpecialtyId)
+                .Must(x => !x.HasValue || x.Value > 0)
+                .WithMessage("SpecialtyId повинен бути null або більшим за 0");
+
+            RuleFor(x => x.CabinetId)
+                .Must(x => !x.HasValue || x.Value > 0)
+                .WithMessage("CabinetId повинен бути null або більшим за 0");
         }
     }
 }

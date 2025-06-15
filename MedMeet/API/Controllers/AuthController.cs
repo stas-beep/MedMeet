@@ -22,7 +22,7 @@ namespace API.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterDto model)
+        public async Task<IActionResult> Register([FromBody] RegisterUserDto model)
         {
             var existingUser = await userManager.FindByEmailAsync(model.Email);
             if (existingUser != null)
@@ -30,7 +30,7 @@ namespace API.Controllers
                 return BadRequest("Користувач з такою електронною поштою вже існує.");
             }
 
-            User user = new User { UserName = model.FullName, Email = model.Email, FullName = model.FullName, SpecialtyId = model.SpecialtyId, CabinetId = model.CabinetId};
+            User user = new User { UserName = model.UserName, Email = model.Email, FullName = model.UserName, SpecialtyId = model.SpecialtyId, CabinetId = model.CabinetId };
 
             var result = await userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)
@@ -47,6 +47,7 @@ namespace API.Controllers
 
             return Ok("Реєстрація успішна.");
         }
+
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto model)
