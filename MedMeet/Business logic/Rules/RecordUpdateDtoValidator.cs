@@ -16,7 +16,9 @@ namespace Business_logic.Rules
                 .NotEmpty()
                 .WithMessage("Дата є обов'язковою")
                 .GreaterThanOrEqualTo(DateTime.Today)
-                .WithMessage("Дата прийому не може бути в минулому.");
+                .WithMessage("Дата прийому не може бути в минулому.")
+                .Must(BeWithinAllowedHours)
+                .WithMessage("Час прийому повинен бути не раніше 08:00 і не пізніше 17:30.");
 
             RuleFor(x => x.Status)
                 .NotEmpty()
@@ -31,6 +33,14 @@ namespace Business_logic.Rules
                 .WithMessage("Нотатки є обов'язковими")
                 .MaximumLength(500)
                 .WithMessage("Нотатки не можуть перевищувати 500 символів.");
+        }
+
+        private bool BeWithinAllowedHours(DateTime dateTime)
+        {
+            var time = dateTime.TimeOfDay;
+            var start = new TimeSpan(8, 0, 0);    
+            var end = new TimeSpan(17, 30, 0);   
+            return time >= start && time <= end;
         }
     }
 }
